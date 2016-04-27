@@ -1,0 +1,265 @@
+
+<!-- photo upload -->
+<link rel="stylesheet" href="/libs/jQuery-File-Upload-9.11.0/css/jquery.fileupload.css">
+<script src="/libs/jQuery-File-Upload-9.11.0/js/vendor/jquery.ui.widget.js"></script>
+<script src="/libs/jQuery-File-Upload-9.11.0/js/jquery.iframe-transport.js"></script>
+<script src="/libs/jQuery-File-Upload-9.11.0/js/jquery.fileupload.js"></script>
+<script src="/libs/tel-input/build/js/intlTelInput.min.js"></script>
+<script src="/libs/tel-input/build/js/utils.js"></script>
+<link rel="stylesheet" href="/libs/tel-input/build/css/intlTelInput.css">
+<style>
+.iti-flag {background-image: url("lib/tel-input/build/img/flags.png");}
+</style>
+<div class="col-xs-2 profile-side-bar">
+
+	<div>
+		<% if(user.profilePicture.url){ %>
+			<img src="<%-user.profilePicture.url%>" class="img-responsive img-circle" style="margin-left:0; margin-right:0; margin:auto;" id="profilePicture">
+		<%}else if(user.provider =='facebook'){ %>
+			<img src="<%-user.providerData.picture.data.url%>" class="img-responsive img-circle" style="margin-left:0; margin-right:0; margin:auto;" id="profilePicture">
+		<%}else if(user.provider == 'google'){ %>
+			<img src="<%-user.providerData.picture%>" class="img-responsive img-circle" style="margin-left:0; margin-right:0; margin:auto;" id="profilePicture">
+		<%}else{ %>
+			<img src="/images/person.png" class="img-responsive img-circle" style="margin-left:0; margin-right:0; margin:auto;" id="profilePicture">
+		<%}%>
+		<p style="margin-top:10px;">
+			<a href="#" data-toggle="modal" data-target="#picture-modal"><i class="fa fa-camera"></i>Picture</a>
+			<a href="#" data-toggle="modal" data-target=".profile-modal"><i class="fa fa-cog"></i>Edit</a>
+		</p>
+	</div>
+	<div style="margin-top:20px;">
+		<a href="/users/me/post/write_post" class="btn btn-lg btn-block btn-default">
+			<i class="fa fa-pencil"></i> Write Post
+		</a>
+	</div>
+	<ul style="margin-top:40px;" class="profile-menu">
+		<li class="menu-category">Menu</li>
+		<a href="/users/me/dashboard"><li>Dashboard</li></a>
+		<a href="/users/me/post/select_post"><li>Posts</li></a>
+		<a href="/users/me/house/select_house"><li>Houses</li></a>
+		<hr/>
+		<li class="menu-category">Account</li>
+		<a href="/users/me/account/password"><li >Password</li></a>
+		<a href="/users/me/account/email"><li >Email Notification</li></a>
+		<a href="/users/me/account/billing"><li >Billing</li></a>
+		
+
+	</ul>
+
+</div>
+
+<style>
+.profile-side-bar{
+	text-align:center;
+}
+.profile-side-bar a{
+	color:#949395;
+}
+ul.profile-menu{
+	margin-top:40px;
+}
+ul.profile-menu li{
+	text-align: left;
+	padding:5px;
+}
+.profile-menu .menu-category{
+	margin-bottom:10px;
+	font-size:1.4em;
+}
+.intl-tel-input{
+	display:block;
+}
+.navigation-bar{
+	padding:5px;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+	border-color:#ddd;
+	margin-bottom:20px;
+}
+
+.btn {
+    border: 0;
+    border-radius: 300px;
+    text-transform: uppercase;
+    font-family: 'Open Sans','Helvetica Neue',Arial,sans-serif;
+    font-weight: 700;
+}
+#profilePicurePreview{
+	width:300px;
+}
+</style>
+
+<!-- picture modal -->
+<div class="modal" id="picture-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  	<div class="modal-dialog modal-sm">
+    	<div class="modal-content">
+      		<div class="modal-body" style="text-align:center">
+      			<% if(user.profilePicture.url){ %>
+					<img src="<%-user.profilePicture.url%>" id="profilePicurePreview">
+				<%}else if(user.provider =='facebook'){ %>
+					<img src="<%-user.providerData.picture.data.url%>" id="profilePicurePreview">
+				<%}else if(user.provider == 'google'){ %>
+					<img src="<%-user.providerData.picture%>" id="profilePicurePreview">
+				<%}else{ %>
+					<img src="/images/person.png" id="profilePicurePreview">
+				<%}%>
+        		<span class="btn btn-success fileinput-button" style="margin-top:15px;">
+			        <i class="glyphicon glyphicon-plus"></i>
+			        <span>Select image</span>
+			        <!-- The file input field used as target for the file upload widget -->
+			        <input id="profilePictureUpload" type="file" name="files">
+			    </span>
+      		</div>
+       		<div class="modal-footer">
+        		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        		<button type="button" class="btn btn-primary" onclick="saveProfile()">Save changes</button>
+    		</div>
+    	</div>
+  	</div>
+</div>
+
+
+<div class="modal profile-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  	<div class="modal-dialog modal-sm">
+    	<div class="modal-content">
+      		<div class="modal-body">
+        		<form>
+		          	<div class="form-group">
+		            	<label for="recipient-name" class="control-label">First Name</label>
+		            	<input type="text" class="form-control" id="firstName" value="<%=user.firstName%>">
+		          	</div>
+		          
+		          	<div class="form-group">
+		           		<label for="recipient-name" class="control-label">Last Name</label>
+		            	<input type="text" class="form-control" id="lastName" value="<%=user.lastName%>">
+		          	</div>
+		          
+		          	<div class="form-group">
+		            	<label for="recipient-name" class="control-label">Gender</label>
+	            		<select class="form-control" name ="gender" id="gender">
+	            			<option value="other">other</option>
+	            			<option value="male">male</option>
+	            			<option value="female">female</option>
+	            		</select>
+		          	</div>
+		          	<div class="form-group">
+		            	<label for="mobile-number" class="control-label">Contact Number</label>
+		            	<input type="text" class="form-control" id="contactNumber" >
+		          	</div>
+          
+        		</form>
+      		</div>
+       		<div class="modal-footer">
+        		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        		<button type="button" class="btn btn-primary" onclick="saveProfile()">Save changes</button>
+    		</div>
+    	</div>
+  	</div>
+</div>
+
+<script>
+
+
+	// select their gender 
+	$('#gender').val("<%=user.gender%>");
+	var option = {
+		"allowExtensions" : true,
+		"autoFormat" : true
+	}
+	$('#contactNumber').val("<%=user.contactNumber%>");
+	var number = $("#contactNumber").intlTelInput(option);
+
+	function saveProfile(){
+		var displayName = $('#displayName').val();
+		var firstName = $('#firstName').val();
+		var lastName = $('#lastName').val();
+		var gender = $('#gender').val();
+		var contactNumber = $('#contactNumber').val();
+
+		
+		var formData = {
+			'displayName' : displayName,
+			'firstName' : firstName,
+			'lastName' : lastName,
+			'gender' : gender,
+			'contactNumber' : contactNumber
+		}
+		console.log(formData);
+
+		jQuery.ajax({
+		    url: "/users/profile/update", 
+		    type: "PUT",
+		    statusCode : {
+		    	500 : function(err){
+		    		console.log(err);
+		    	},
+		    	400 : function(err){
+		    		console.log(err);
+		    	}
+		    },
+		    data: formData, 
+		    success: function (data, textStatus, jqXHR) { 
+		    	console.log(data);
+	    		if(data.status == 'success'){
+	    			location.reload();
+	    		}
+		        
+		    }
+		});
+		event.preventDefault();
+	}
+
+	function updateProfilePhoto(file){
+		jQuery.ajax({
+		    url: "/users/profile/update_profile_picture", 
+		    type: "POST",
+		    statusCode : {
+		    	500 : function(err){
+		    		console.log(err);
+		    	},
+		    	400 : function(err){
+		    		console.log(err);
+		    	}
+		    },
+		    data: file,
+		    success: function (data, textStatus, jqXHR) { 
+	    		if(data.status == 'success'){
+	    			$("#profilePicture").attr('src',file.url);
+	    			$("#picture-modal").modal('hide');
+	    		}
+		        
+		    }
+		});
+	}
+	//upload profile picture
+	var url = '/uploadImage/user/<%-user._id%>';
+    $('#profilePictureUpload').fileupload({
+        url: url,
+        dataType: 'json',
+        add: function(e, data) {
+            var uploadErrors = [];
+            var acceptFileTypes = /^image\/(gif|jpe?g|png)$/i;
+            if(data.originalFiles[0]['type'].length && !acceptFileTypes.test(data.originalFiles[0]['type'])) {
+                uploadErrors.push('Not an accepted file type');
+            }
+            console.log(data.originalFiles[0]['size']);
+            if(data.originalFiles[0]['size'] > 4194304) {
+                uploadErrors.push('Filesize is too big');
+            }
+            if(uploadErrors.length > 0) {
+                alert(uploadErrors.join("\n"));
+            } else {
+                data.submit();
+            }
+        },
+        done: function (e, data) {
+            $.each(data.result.files, function (index, file) {
+				$('#profilePicurePreview').attr("src",file.url)
+				updateProfilePhoto(file);	                
+            });
+        }
+       
+    })
+
+
+</script>

@@ -1,0 +1,373 @@
+<!doctype html>
+<html>
+	<head>
+		<%- include('layout/head.html') -%>
+		<style>
+			
+			.require-page{
+				position:absolute;
+				top:15%;
+				width:100%;
+			}
+			.require-inside{
+				background: white;
+				width:500px;
+				padding:10px;
+				border-radius: 10px;
+
+				margin-left:auto;
+				margin-right:auto;
+				border:1px solid #ccc;
+
+			}
+			.require-verify{
+				padding:20px;
+				text-align:center;
+				background:RGBA(251, 229, 174, .6);
+			}
+			.header-dropdown{
+				font-size:1.1em;
+				padding:15px;
+			}
+			.header-dropdown li i.fa{
+				font-size:1.5em;
+				margin-right:.6em;
+			}
+			.text-form input{
+				margin-top: 7px;
+			}
+			.division .line{
+				border-top: 1px solid #DFDFDF;
+			    position: absolute;
+			    top: 10px;
+			    width: 34%;
+			}
+
+			.division {
+				float: none;
+			    margin: 13px auto 13px;
+			    overflow: hidden;
+			    position: relative;
+			    text-align: center;
+			    width: 100%;
+			}
+			.division .line.l {
+			    left:0;
+			}
+			.division .line.r {
+			    right: 0;
+			}
+
+			#signup-message,#signin-message{
+				text-align: center;
+				color:#FF0815;
+				font-weight:bold;
+				margin-top:15px;
+				font-size:1.1em;
+			}
+
+			.social a{
+				position:relative;
+				text-align: left;
+				padding-left:60px;
+			}
+			.social a i{
+				position:absolute;
+				left: 13px;
+			    top: 14px;
+			}
+			.modal-dialog {
+			  padding-top: 7%;
+			}
+			.header{
+				height:50px;
+				padding-left:15px;
+				line-height: 3;
+				background-image:-webkit-linear-gradient(#046D06 0%, #094804 100%);
+				background-image:-o-linear-gradient(#046D06 0%, #094804 100%);
+				background-image:linear-gradient(#046D06 0%, #094804 100%);
+			}
+			
+			.background {
+			    background-image: url(/libs/single_page/img/header.jpg);
+				background-position: center;
+				opacity : 0.8;
+				min-height:750px;
+			}
+
+			</style>
+			
+	</head>
+	<body>
+		<div class="header">
+			
+			<a href="/">
+				<div style="color:white;">
+					<img src="/images/logo.png" style="height:45px;">
+				</div>
+			</a>
+			
+		</div>
+		<div class="background">
+			
+			
+		</div>
+		<div class="require-page">
+			<div class="require-inside">
+				<div class="tab-content">
+					<!-- login -->
+				    <div role="tabpanel" class="tab-pane active" id="login">
+						<div class="social">
+							<a href="/auth/facebook" class="btn btn-primary btn-lg btn-block">
+								<i class="fa fa-facebook"></i> 
+								<span> Log in with Facebook</span>
+							</a>
+							<a href="/auth/google" class="btn btn-danger btn-lg btn-block">
+								<i class="fa fa-google-plus"></i>
+								<span> Log in with Google</span>
+							</a>
+						</div>
+						<div class="division">
+						    <div class="line l"></div>
+						      <span>OR</span>
+						    <div class="line r"></div>
+						</div>
+						<div class="text-form">
+							<form id="signin-form" action="#">
+						  		<input class="form-control input-lg" type="text"
+						  		placeholder="Email" id="signin-email">
+						  		<input class="form-control input-lg" type="password"
+						  		placeholder="Password" id="signin-password">
+								<input class="btn btn-info btn-lg btn-block" type="submit"
+								value="LOG IN">
+								<p id="signin-message"></p>
+							</form>
+						</div>
+						<p>Forgot your password? <a href="#forgot" aria-controls="forgot" role="tab" data-toggle="tab">Click here</a></p>
+						<p>Want to <a href="#signup" aria-controls="signup" role="tab" data-toggle="tab">create an account</a> ?</p>
+				    </div>
+
+				    <!-- sign up -->
+				    <div role="tabpanel" class="tab-pane" id="signup">
+						<div class="social">
+				      		<a href="/auth/facebook" class="btn btn-primary btn-lg btn-block">
+									<i class="fa fa-facebook"></i> 
+									<span> Sign up with Facebook</span>
+			  				</a>
+			  				<a href="/auth/google" class="btn btn-danger btn-lg btn-block">
+									<i class="fa fa-google-plus"></i>
+									<span> Sign up with Google</span>
+							</a>
+						</div>
+						<div class="division">
+			                <div class="line l"></div>
+			                  <span>OR</span>
+			                <div class="line r"></div>
+			            </div>
+				      	<div class="text-form">
+				      		<form id="signup-form" action="#"> 
+					      		<input class="form-control input-lg" type="text"
+					      		placeholder="First Name" name="firstName" id="signup-firstName">
+					      		<input class="form-control input-lg" type="text"
+					      		placeholder="Last Name" name="lastName" id="signup-lastName">
+					      		<input class="form-control input-lg" type="text" 
+					      		placeholder="Email" name="email" id="signup-email">
+					      		<input class="form-control input-lg" type="password" 
+					      		placeholder="Password" name="password" id="signup-password">
+								<input class="btn btn-info btn-lg btn-block" type="submit" value="SIGN UP">
+								<p id="signup-message"></p>
+							</form>
+				      	</div>
+				      	<div>
+				      		Already the Project member? <a href="#login" aria-controls="home" role="tab" data-toggle="tab">Log in</a>
+				      	</div>
+				    </div>
+
+				    <!-- forgot -->
+				    <div role="tabpanel" class="tab-pane" id="forgot">
+				    	<div class="text-form">
+							<form id="forgot-form" action="#">
+					      		<p>Enter your email. We'll send you a link to reset your password.</p>
+					      		<input class="form-control input-lg" type="text" 
+					      		placeholder="Email" name="email" id="forgot-email">
+								<input class="btn btn-info btn-lg btn-block" type="submit" value="SEND">
+								<p id="forgot-message"></p>
+							</form>
+						</div>
+						Already the Project member? <a href="#login" aria-controls="login" role="tab" data-toggle="tab">Log in</a>
+				    </div>
+				</div>
+
+			</div>
+		</div>
+      	
+	<%- include('layout/footer.html') -%>
+  	
+
+	</body>
+<script>
+
+	$('#signin-form').on('submit', function( event ) {
+		event.preventDefault();
+		signin();
+	});
+
+	$('#signup-form').on('submit', function( event ) {
+		event.preventDefault();
+		validateForm();
+	});
+
+	$('#forgot-form').on('submit', function( event ) {
+		event.preventDefault();
+		sendEmail();
+	});
+
+	function validateForm(){
+		var firstName  = $('#signup-firstName').val();
+		var lastName = $('#signup-lastName').val();
+		var email = $('#signup-email').val();
+		var password = $('#signup-password').val();
+		var formData = {
+			'firstName' : firstName,
+			'lastName' : lastName,
+			'email' : email,
+			'password' : password
+		}
+
+		if(firstName){
+			if(lastName){
+				if(email){
+					if(password.length > 6){
+						signup(formData);
+					}else{
+						$('#signup-message').html('Password is too short');
+					}
+				}else{
+					$('#signup-message').html('Please fill the email');
+				}
+			}else{
+	    		$('#signup-message').html('Please fill the Last Name');
+			}
+		}else{
+    		$('#signup-message').html('Please fill the First Name');
+    		
+		}
+	}
+
+	function signin(){
+		var email = $('#signin-email').val();
+		var password = $('#signin-password').val();
+		var formData = {
+			'email' : email,
+			'password' : password
+		}
+		jQuery.ajax({
+		    url: "/auth/signin", 
+		    type: "POST",
+		    statusCode : {
+		    	400 : function(err){
+		    		var error = JSON.parse(err.responseText);
+		    		if(error.message ==='Missing credentials'){
+		    			$('#signin-message').html('Please fill the login information');
+		    		}else{
+		    			$('#signin-message').html(error.message);
+		    		}
+		    	}
+		    },
+		    data: formData, 
+		    success: function (data, textStatus, jqXHR) { 
+		    	
+		    	if(textStatus =='success'){
+		    		localStorage.setItem('email', email);
+		    	}
+	    		location.reload();
+		    	
+		        
+		    }
+		});
+		event.preventDefault();
+	}
+
+	function signup(formData){
+		var text = $('<span style="color : black;"> <i class="fa fa-spinner fa-spin"></i> We are sending an Email </span>',{
+		})
+
+		$('#signup-message').html('');
+		
+		$('#signup-message').append(text);
+
+		jQuery.ajax({
+		    url: "/auth/signup", 
+		    type: "POST",
+		    data: formData,
+		    statusCode : {
+		    	400 : function(err){
+		    		var error = JSON.parse(err.responseText);
+		    		$('#signup-message').html(error.message);
+		    	},
+		    	500 : function(err){
+		    		$('#signup-message').html('Please check the Javascript. and try it again');
+		    	}
+		    },
+		    success: function (data, textStatus, jqXHR) { 
+		        if(textStatus == 'success'){
+		        	localStorage.setItem('email', formData.email);
+		        	location.reload();
+		        }
+		    }
+		});
+		event.preventDefault();
+	}
+
+	
+	// this is for forgot password.
+	function sendEmail(){
+
+		var text = $('<span style="color : black;"> <i class="fa fa-spinner fa-spin"></i> We are sending an Email </span>',{
+			
+		})
+
+		$('#forgot-message').html('');
+		
+		$('#forgot-message').append(text);
+
+
+		var formData = {
+			'email' : $('#forgot-email').val(),
+		}
+
+		jQuery.ajax({
+		    url: "/auth/forgot", 
+		    type: "POST",
+		    statusCode : {
+		    	500 : function(err){
+		    		console.log(err);
+		    	},
+		    	400 : function(err){
+		    		var error = JSON.parse(err.responseText);
+		    		$('#forgot-message').html(error.message);
+		    	}
+		    },
+		    data: formData, 
+		    success: function (data, textStatus, jqXHR) { 
+		    	console.log(data);
+	    		if(textStatus == 'success'){
+	    			$('#forgot-message').html(data.message);
+	    		}
+		        
+		    }
+		});
+		event.preventDefault();
+	}
+</script>
+<style>
+.header{
+	border-bottom:3px solid #023100;
+
+}
+footer{
+	margin-top:0;
+	border-top:3px solid #011700;
+}
+</style>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+	<head>
+		<%- include('../../layout/head.html') -%>
+		<script src="https://apis.google.com/js/platform.js" async defer></script>
+		<link rel="stylesheet" href="/libs/raty/lib/jquery.raty.css">
+		<script src="/libs/raty/lib/jquery.raty.js"></script>
+		<script>
+			!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+		</script>
+	</head>
+	<body>
+		<style>
+			.house-post{
+				color:#2A3230;
+			}
+
+			.now-post{
+				font-weight:bold;
+				font-size:1.06em;
+				text-decoration: underline;
+			}
+			#collapseOffers{
+				margin-top:20px;
+			}
+			.logo-area{
+				text-align: center;
+			}
+			.Accepted{
+
+			}
+			.Declined{
+				opacity: .5; 
+			}
+			.post-status{
+				margin-left:1.4em;
+				font-size:0.7em;
+				color:white;
+				padding: 0.1em 0.3em;
+			}
+			.post-status.Open{
+				background: #51D952;
+			}
+			.post-status.Closed{
+				background: #D91F3A;
+
+			}
+
+		</style>
+		<%- include('../../layout/header.html') -%>
+		<div class="container" style="margin-top:30px;">
+			<div class="row">
+				
+				<%- include('layout.html') -%>
+
+				<div class="col-xs-8" style="padding-left:15px;">
+					<div class="right-side" style="line-height:1.4; font-size:0.9em; margin-bottom:10px;">
+						<p style="color:#D91F1B"><b>Previous Posts (<%=posts.length%>)</b></p>
+						<hr/ style="margin:5px 0; border: 1px dashed #eee;">
+						<% posts.forEach(function(post){ %>
+							<div class="clearfix" style="padding:0 10px;">
+								<a href="/h/<%-house._id%>/p/<%-post._id%>"  class="house-post" data-post ="<%-post._id%>">
+									<p class="pull-left"><%-post.title%>
+										<span class="post-status <%-post.wanted.status%>"><%-post.wanted.status%></span>
+									</p>
+									<p class="pull-right"><%-moment(post.posted).format('YYYY-MM-DD')%></p>
+								</a>
+							</div>
+						<% })%>
+					</div>
+
+					<b style="font-size:2em;">Post is not available</b>
+					
+				</div>
+
+			</div>
+		</div>
+	<%- include('../../layout/footer.html') -%>
+	</body>
+	
+
+</html>

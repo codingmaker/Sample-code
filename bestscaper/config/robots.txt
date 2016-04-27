@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /companies/my_company/
+Disallow: /users/me/
+Disallow: /users/account/
+Disallow: /users/profile/
+Disallow: /auth/
+Sitemap: http://bestscaper.com/sitemap.xml

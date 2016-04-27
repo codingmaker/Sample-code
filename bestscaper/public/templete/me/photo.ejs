@@ -1,0 +1,7 @@
+<% photos.forEach(function(photo){ %>
+	<div class="photo-wrapper">
+		<i class="fa fa-times remove-photo" onclick="removePhoto('<%=photo._id%>')"></i>
+		<%= img_tag(photo.url,'house-photo')%> 
+	</div>
+
+<% }) %>

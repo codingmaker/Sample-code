@@ -1,0 +1,218 @@
+<html>
+	<head>
+		<%- include('../../../layout/head.html') -%>
+		<script src="/libs/ejs_production.js"></script>
+		<script src="/libs/moment.min.js"></script>
+		
+	</head>
+	<body>
+
+		<%- include('../../../layout/header.html') -%>
+		<%
+			var albumCount = company.albums.length;
+			var nowSize = 0;
+			var maxSize = 0;
+			var percent = 0;
+			company.albums.forEach(function(album){
+				album.photos.forEach(function(photo){
+					nowSize = nowSize + photo.size;
+				})
+			})
+			nowSize = (Math.ceil(nowSize / 1024) / 1024).toFixed(2);
+
+			if(company.payment.plan == "Basic"){
+				maxSize = 80;
+			}else if(company.payment.plan == "Gold"){
+				maxSize = 250;
+			}else if(company.payment.plan == "Platinum"){
+				maxSize = 9999;
+			}
+			
+			percent = Math.ceil(nowSize / maxSize * 100 );
+
+		%>
+		<div class="container" style="margin-top:30px">
+			<div class="row">
+				<div class="col-xs-2">
+					<%- include('../sidebar.html') -%>
+				</div>
+
+				<div class="col-xs-9 col-xs-offset-1">
+					<div class="clearfix" id="navigation">
+						<div class="pull-left">
+							<a href="/companies/my_company/album/select_album">Select an album</a>
+
+						</div>
+
+						<div class="pull-right">
+							<div>
+								<button class="btn btn-default" data-toggle="modal" data-target="#newAlbum">
+									New Album
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<%if(company.payment.plan == "Platinum"){ %>
+						<p style="margin-bottom:10px;"><b>Images</b> : <span id="nowSize"><%=nowSize%></span>MB / Infinite</p>
+						<div class="progress">
+						<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="<%=nowSize%>" aria-valuemin="0" aria-valuemax="100" style="width:100%" id="processBar">
+						</div>
+					</div>
+					<%}else{%>
+						<p style="margin-bottom:10px;"><b>Images</b> : <span id="nowSize"><%=nowSize%></span>MB / <%=maxSize%>MB</p>
+						<div class="progress">
+						<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="<%=nowSize%>" aria-valuemin="0" aria-valuemax="100" style="width: <%=percent%>%" id="processBar">
+						</div>
+					</div>
+					<%}%>
+					<div class="row" id="albums">
+						<% company.albums.forEach(function(album){%>
+						<a class="col-xs-3" style="padding:10px; text-decoration:none" href='/companies/my_company/album/edit_album/<%-album._id%>'>
+							<div class="album">
+								<% if (album.photos.length > 0){%>
+								<img src="<%-album.photos[0].url%>" class="img-responsive"> 
+								<% }else{%>
+								<img src="/images/noimage.png" class="img-responsive img-thumbnail center-block"> 
+								<% }%>
+								<div class="" style="padding:10px; color:RGBA(64, 62, 65, .7)">
+									<!-- like counter, comment counter. -->
+									<p class="album-title"><%-album.title%></p>
+									<p><%= moment(album.createdAt).format('YYYY-MM-DD') %></p>
+								</div>
+							</div>
+						</a>
+						<% }) %>
+					</div>
+					<!-- <div style="">
+						<form method="post" enctype="multipart/form-data" id="uploadimage" action="">
+						    Select image to upload:
+						    <input type="hidden" name="company" value="<%=company._id%>">
+						    <input type="file" name="files[]" id="fileToUpload" multiple="multiple">
+						    <input type="submit" value="Upload Image" name="submit">
+						</form>
+					</div> -->
+				</div>
+			</div>
+		</div>
+		<style>
+			#albums{
+				min-height:600px;
+				padding:10px;
+				background:RGBA(200, 200, 200, .4);
+				border-radius: 10px;
+			}
+			
+			.album{
+				
+				height:240px;
+				background-color: #FEFEFE;
+				border-radius: 5px;
+				padding:5px;
+			}
+			.album .album-title{
+				font-size:1.1em;
+				font-weight: bold;
+				margin-bottom:5px;
+			}
+			.album img{
+				height:150px;
+			}
+		</style>
+		<div class="modal" id="newAlbum" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"data-backdrop="">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		    	<div class="modal-header">
+		    		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+        			<h4 class="modal-title" id="exampleModalLabel">Make new album</h4>			
+				</div>
+		    	<div class="modal-body">
+		    		<div class="form-group">
+					    <label for="title">Album Title</label>
+					    <input type="text" class="form-control" id="title" placeholder="My Album">
+					</div>
+					<div class="form-group">
+					    <label for="title">Album Description</label>
+					    <textarea class="form-control" id="description"></textarea>
+					</div>
+
+					<p id="albumMessage" style="color:red"></p>
+				</div>
+		    	<div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        <button type="button" class="btn btn-primary" onClick="addNewAlbum()">Save</button>
+			    </div>
+		    </div>
+		  </div>
+		</div>
+		
+
+
+		<%- include('../../../layout/footer.html') -%>
+	
+	</body>	
+	<script>
+
+		function addNewAlbum(){
+
+			// add new album
+			var formData = {
+				title : $('#title').val(),
+				description : $('#description').val(),
+			}
+
+			jQuery.ajax({
+			    url: "/companies/my_company/photo/add_new_album", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: formData, 
+			    success: function (data, textStatus, jqXHR) { 
+		    		if(data.status == 'success'){
+		    			$('#newAlbum').modal('hide');
+		    			renderAlbums(data.albums);
+		    		}
+		    		if(data.status == 'fail'){
+		    			$('#albumMessage').html(data.message);
+		    		}
+			        
+			    }
+			});
+		}
+
+
+	function renderAlbums(albums){
+		var target = $('#albums');
+		var html = new EJS({url: '/templete/company/album'}).render({albums : albums})
+		target.html(html);
+	}
+	</script>
+<!-- 
+	<script>
+		$("#uploadimage").on('submit',(function(e) {
+			e.preventDefault();
+			$.ajax({
+				url: "http://localhost:8000/upload.php", // Url to which the request is send
+				type: "POST",
+				dataType: 'json',             // Type of request to be send, called as method
+				data: new FormData(this), // Data sent to server, a set of key/value pairs (i.e. form fields and values)
+				contentType: false,
+				crossDomain: true,      // The content type used when sending data to the server.
+				cache: false,             // To unable request pages to be cached
+				processData:false,        // To send DOMDocument or non processed data file it is set to false
+				success: function(data){
+					console.log(data);
+				}
+			});
+		}));
+
+	</script>
+	 -->
+</html>

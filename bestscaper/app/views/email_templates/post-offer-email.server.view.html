@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+	<div style="width:600px; margin:0 auto;">
+		<%- include('./email-header.html')-%>
+
+			<p>Dear <%=post.writer.firstName%> <%=post.writer.lastName%>,</p>
+			<br>
+			<p>
+				You got an offer from <a href="http://www.bestscaper.com/c/<%-company.id%>"><%=company.companyName%></a> on your <a href="http://www.bestscaper.com/h/<%-post.house%>/p/<%-post._id%>">post</a>
+			</p>
+			<p>Please visit <a href="http://www.bestscaper.com/h/<%-post.house%>/p/<%-post._id%>">this link</a> to check your post</p>
+			<p></p>
+			<br>
+			<br>
+			<p>Thank you for  using <%=appName%></p>
+			<p>The <%=appName%> Support Team</p>
+		<%- include('./email-footer.html')-%>
+	</div>
+</body>
+</html>

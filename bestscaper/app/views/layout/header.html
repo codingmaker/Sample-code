@@ -1,0 +1,487 @@
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '1525465817702104',
+      xfbml      : true,
+      version    : 'v2.4'
+    });
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+<% if(user){ 
+	if(!user.verified){
+%>
+<div class="require-verify">
+	We sent a verification email to <b><%=user.email%></b>. Please activate your account.
+	If you didn't get any email click <a href="#" onclick="sendVerificationEmail()"><b>here</b></a> to resend verification email.
+</div>
+<% 
+	}
+}
+ %>
+<div class="header">
+	<nav class="row">
+		<a href="/">
+			<div class="col-xs-2" style="color:white;">
+				<img src="/images/logo.png" style="height:45px;">
+			</div>
+		</a>
+		<ul class="col-xs-5" style="padding:7px;">
+		  	<% if(typeof search != "undefined") { %>
+		        <li>
+	            	<input type="text" class="form-control" id="autocomplete" placeholder="City, State" autocomplete="off">
+	          	</li>
+		      	
+		  	<% } %>
+	  	</ul>
+	  	<ul class="col-xs-offset-3 col-xs-2 header-right" >
+	  		<!-- when user is not logged on -->
+	  		<% if(typeof user == 'undefined') { %>
+	    		<li><a href="#" data-toggle="modal" data-target=".sign-up-modal">Sign Up</a></li>
+	    		<li><a href="#" data-toggle="modal" data-target=".sign-in-modal">Log In</a></li>
+			<% } %>
+			<!-- when user is logged on -->
+	    	<% if(typeof user != 'undefined'){ %>
+	        	<li class="dropdown">
+		          	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Menu <span class="caret"></span></a>
+		          	<ul class="dropdown-menu header-dropdown">
+		          		<% if(user.roles.indexOf('company') != -1) { %>
+			            	<li><a href="/companies/my_company/dashboard"><i class="fa fa-building-o"></i>My Company</a></li>
+			            	<li role="separator" class="divider"></li>
+
+		          		<% }%>
+			            <li><a href="/users/me/dashboard"><i class="fa fa-user"></i> Me</a></li>
+			            <li><a href="/users/me/account/password"><i class="fa fa-cogs"></i> Account</a></li>
+			            <li role="separator" class="divider"></li>
+			            <li><a href="/auth/signout"><i class="fa fa-sign-out"></i> Log Out</a></li>
+		          	</ul>
+		        </li>
+	        <% } %>
+
+	  	</ul>
+	</nav>
+</div>
+<style>
+.header{
+	height:50px;
+	padding-left:15px;
+	line-height: 3;
+	/*background-image:-webkit-linear-gradient(#046D06 0%, #094804 100%);*/
+	/*background-image:-o-linear-gradient(#046D06 0%, #094804 100%);*/
+	/*background-image:linear-gradient(#046D06 0%, #094804 100%);*/
+	background:#086505;
+}
+.header-right{
+	text-align: right;
+	padding-right:15px;
+}
+.header-right>li>a{
+ 	color:white;
+ 	text-decoration: none;
+}
+.header-right >li{
+	margin-left:15px;
+	display:inline-block;
+}
+.header-right .dropdown{
+	padding:0 5px;
+}
+.header-right .dropdown.open{
+	background :white;
+}
+.dropdown.open>a{
+	color:black;
+}
+.require-verify{
+	padding:20px;
+	text-align:center;
+	background:RGBA(251, 229, 174, .6);
+}
+.header-dropdown{
+	font-size:1.1em;
+	padding:15px;
+}
+.dropdown-menu.header-dropdown{
+	left:initial;
+	right:0 !important;
+}
+.header-dropdown li i.fa{
+	font-size:1.5em;
+	margin-right:.6em;
+}
+.text-form input{
+	margin-top: 7px;
+}
+.division .line{
+	border-top: 1px solid #DFDFDF;
+    position: absolute;
+    top: 10px;
+    width: 34%;
+}
+
+.division {
+	float: none;
+    margin: 13px auto 13px;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    width: 100%;
+}
+.division .line.l {
+    left:0;
+}
+.division .line.r {
+    right: 0;
+}
+
+#signup-message,#signin-message{
+	text-align: center;
+	color:#FF0815;
+	font-weight:bold;
+	margin-top:15px;
+	font-size:1.1em;
+}
+
+.social a{
+	position:relative;
+	text-align: left;
+	padding-left:60px;
+}
+.social a i{
+	position:absolute;
+	left: 13px;
+    top: 14px;
+}
+.modal-dialog {
+  padding-top: 7%;
+}
+</style>
+
+<!-- sign in modal -->
+<div class="modal sign-in-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  	<div class="modal-dialog modal-sm">
+    	<div class="modal-content">
+      		
+	      	<div class="modal-body">
+	      		<div class="social">
+		      		<a href="/auth/facebook" class="btn btn-primary btn-lg btn-block">
+  						<i class="fa fa-facebook"></i> 
+  						<span> Log in with Facebook</span>
+	  				</a>
+	  				<a href="/auth/google" class="btn btn-danger btn-lg btn-block">
+  						<i class="fa fa-google-plus"></i>
+  						<span> Log in with Google</span>
+					</a>
+				</div>
+				<div class="division">
+                    <div class="line l"></div>
+                      <span>OR</span>
+                    <div class="line r"></div>
+                </div>
+		      	<div class="text-form">
+		      		<form id="signin-form">
+			      		<input class="form-control input-lg" type="text"
+			      		placeholder="Email" id="signin-email">
+			      		<input class="form-control input-lg" type="password"
+			      		placeholder="Password" id="signin-password">
+						<input class="btn btn-info btn-lg btn-block" type="submit"
+						value="LOG IN">
+						<p id="signin-message"></p>
+					</form>
+		      	</div>
+		      	<p>Forgot your password? <a href="#" onclick ="modalChange('forgot')">Click here</a></p>
+				<p>Wanting to <a href="#" onclick ="modalChange('signup')">create an account</a> ?</p>
+	      	</div>
+    	</div>
+  	</div>
+</div>
+
+
+<!-- signup modal -->
+<div class="modal sign-up-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  	<div class="modal-dialog modal-sm">
+    	<div class="modal-content">
+      		
+	      	<div class="modal-body">
+	      		<div class="social">
+		      		<a href="/auth/facebook" class="btn btn-primary btn-lg btn-block">
+  						<i class="fa fa-facebook"></i> 
+  						<span> Sign up with Facebook</span>
+	  				</a>
+	  				<a href="/auth/google" class="btn btn-danger btn-lg btn-block">
+  						<i class="fa fa-google-plus"></i>
+  						<span> Sign up with Google</span>
+					</a>
+				</div>
+				<div class="division">
+                    <div class="line l"></div>
+                      <span>OR</span>
+                    <div class="line r"></div>
+                </div>
+		      	<div class="text-form">
+		      		<form id="signup-form" > 
+			      		<input class="form-control input-lg" type="text"
+			      		placeholder="First Name" name="firstName" id="signup-firstName">
+			      		<input class="form-control input-lg" type="text"
+			      		placeholder="Last Name" name="lastName" id="signup-lastName">
+			      		<input class="form-control input-lg" type="text" 
+			      		placeholder="Email" name="email" id="signup-email">
+			      		<input class="form-control input-lg" type="password" 
+			      		placeholder="Password" name="password" id="signup-password">
+						<input class="btn btn-info btn-lg btn-block" type="submit" value="SIGN UP">
+						<p id="signup-message"></p>
+					</form>
+		      	</div>
+	      	</div>
+	      	<div class="modal-footer">
+	      		Already the Bestscaper member? <a href="#" onclick="modalChange('signin')">Log in</a>
+	      	</div>
+    	</div>
+  	</div>
+</div><!-- /.signup modal-->
+
+
+<!-- forgot modal -->
+<div class="modal forgot-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  	<div class="modal-dialog modal-sm">
+    	<div class="modal-content">
+    		<div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="gridSystemModalLabel">Forgot your password?</h4>
+		    </div>
+	      	<div class="modal-body">
+		      	<div class="text-form">
+		      		<form id="forgot-form" action="#">
+			      		<p>Enter your email. We'll send you a link to reset your password.</p>
+			      		<input class="form-control input-lg" type="text" 
+			      		placeholder="Email" name="email" id="forgot-email">
+						<input class="btn btn-info btn-lg btn-block" type="submit" value="SEND">
+						<p id="forgot-message"></p>
+					</form>
+		      	</div>
+	      	</div>
+	      	
+    	</div>
+  	</div>
+</div><!-- /.signup modal-->
+
+<script>
+	$(function() {
+	var localEmail = localStorage.getItem('email')
+	 	if(localEmail){
+	 		$('#signin-email').val(localEmail);
+	 	}
+	 	
+	});
+
+	$('#signup-form').on('submit', function( event ) {
+		event.preventDefault();
+		validateForm();
+	});
+
+	$('#signin-form').on('submit', function( event ) {
+		event.preventDefault();
+		signin();
+	});
+
+	$('#forgot-form').on('submit', function( event ) {
+		event.preventDefault();
+		sendEmail();
+	});
+
+	function validateForm(){
+		var firstName  = $('#signup-firstName').val();
+		var lastName = $('#signup-lastName').val();
+		var email = $('#signup-email').val();
+		var password = $('#signup-password').val();
+		var formData = {
+			'firstName' : firstName,
+			'lastName' : lastName,
+			'email' : email,
+			'password' : password
+		}
+
+		if(firstName){
+			if(lastName){
+				if(email){
+					if(password.length > 6){
+						signup(formData);
+					}else{
+						$('#signup-message').html('Password is too short');
+					}
+				}else{
+					$('#signup-message').html('Please fill the email');
+				}
+			}else{
+	    		$('#signup-message').html('Please fill the Last Name');
+			}
+		}else{
+    		$('#signup-message').html('Please fill the First Name');
+    		
+		}
+	}
+	
+	function signup(formData){
+		var text = $('<span style="color : black;"> <i class="fa fa-spinner fa-spin"></i> We are sending an Email </span>',{
+			
+		})
+
+		$('#signup-message').html('');
+		
+		$('#signup-message').append(text);
+
+		jQuery.ajax({
+		    url: "/auth/signup", 
+		    type: "POST",
+		    data: formData,
+		    statusCode : {
+		    	400 : function(err){
+		    		var error = JSON.parse(err.responseText);
+		    		$('#signup-message').html(error.message);
+		    	},
+		    	500 : function(err){
+		    		$('#signup-message').html('Please check the Javascript. and try it again');
+		    	}
+		    },
+		    success: function (data, textStatus, jqXHR) { 
+		        if(textStatus == 'success'){
+		        	localStorage.setItem('email', formData.email);
+		        	location.reload();
+		        }
+		    }
+		});
+		event.preventDefault();
+	}
+
+	function signin(){
+		var email = $('#signin-email').val();
+		var password = $('#signin-password').val();
+		var formData = {
+			'email' : email,
+			'password' : password
+		}
+		jQuery.ajax({
+		    url: "/auth/signin", 
+		    type: "POST",
+		    statusCode : {
+		    	400 : function(err){
+		    		var error = JSON.parse(err.responseText);
+		    		if(error.message ==='Missing credentials'){
+		    			$('#signin-message').html('Please fill the login information');
+		    		}else{
+		    			$('#signin-message').html(error.message);
+		    		}
+		    	}
+		    },
+		    data: formData, 
+		    success: function (data, textStatus, jqXHR) { 
+		    	console.log(data);
+		    	console.log(textStatus);
+		    	if(textStatus =='success'){
+		    		localStorage.setItem('email', email);
+		    		location.reload();
+		    	}
+		        
+		    }
+		});
+		event.preventDefault();
+	}
+
+
+	function sendVerificationEmail(){
+		console.log('clicked');
+		jQuery.ajax({
+		    url: "/auth/sendVerificationEmail", 
+		    type: "PUT",
+		    statusCode : {
+		    	500 : function(err){
+		    		console.log(err);
+		    	},
+		    	400 : function(err){
+		    		console.log(err);
+		    		// var error = JSON.parse(err.responseText);
+		    		
+		    	}
+		    },
+		    success: function (data, textStatus, jqXHR) { 
+		    	if(data.status == 'success'){
+
+		    		alert(data.message);
+		    	}
+		    }
+		});
+
+	}
+
+
+
+	// this is for forgot password.
+	function sendEmail(){
+
+		var text = $('<span style="color : black;"> <i class="fa fa-spinner fa-spin"></i> We are sending an Email </span>',{
+			
+		})
+
+		$('#forgot-message').html('');
+		
+		$('#forgot-message').append(text);
+
+
+		var formData = {
+			'email' : $('#forgot-email').val(),
+		}
+
+		jQuery.ajax({
+		    url: "/auth/forgot", 
+		    type: "POST",
+		    statusCode : {
+		    	500 : function(err){
+		    		console.log(err);
+		    	},
+		    	400 : function(err){
+		    		var error = JSON.parse(err.responseText);
+		    		$('#forgot-message').html(error.message);
+		    	}
+		    },
+		    data: formData, 
+		    success: function (data, textStatus, jqXHR) { 
+		    	console.log(data);
+	    		if(textStatus == 'success'){
+	    			$('#forgot-message').html(data.message);
+	    		}
+		        
+		    }
+		});
+		event.preventDefault();
+	}
+
+	function modalChange(changeTo){
+		console.log(changeTo);
+		if(changeTo == 'signup'){
+			$('.sign-in-modal').modal('hide');
+			$('.sign-up-modal').modal('show');
+		}else if(changeTo == 'signin'){
+			$('.sign-up-modal').modal('hide');
+			$('.sign-in-modal').modal('show');
+		}else if(changeTo == 'forgot'){
+			$('.sign-in-modal').modal('hide');
+			$('.forgot-modal').modal('show');
+		}
+	}
+
+	function requireVerify(){
+
+	    var l = 20;  
+	    for( var i = 0; i < 10; i++ )   
+	    $( ".require-verify" ).animate( { 'margin-left': "+=" + ( l = -l ) + 'px' }, 50);  
+	
+	}
+
+</script>

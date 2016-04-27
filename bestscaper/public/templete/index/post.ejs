@@ -1,0 +1,32 @@
+<% if(postResult.count > 0 ) { %>
+	<% postResult.posts.forEach(function(post){ %>
+		<a href="/h/<%=post.house._id%>/p/<%=post._id%>" target = "_blank" class="post-wrapper">
+			<div class="row">
+				<div class="col-xs-2">
+					<% if(post.house.mainPhoto){ %>
+						<%=img_tag(post.house.mainPhoto.url,'img-responsive') %>
+					<% }else{ %>
+						<img src ="/images/noimage.png" class="img-responsive">
+					<% } %>
+				</div>
+				<div class="col-xs-10">
+					<h4><%=post.title + '(' + post.address.streetNumber + post.address.street+ ', ' + post.address.city + ', '+ post.address.state + ', ' + post.address.country + ')' %></h4>
+
+					<span class="more"><%=post.description%></span>
+					<div class="row" style="margin-top:10px;">
+						<div class="col-xs-8">
+							<span style="font-weight:bold;">Exp.Date : <%= moment(post.wanted.to).format('YYYY-MM-DD') %></span>
+						</div>
+						<div class="col-xs-4" style="text-align:right; font-size:0.9em">
+							Posted : <%=moment(post.posted).format('YYYY-MM-DD')%><br/>
+							Views : <%=post.view%><br/>
+							Contact : <%=post.offers.length%>
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
+	<% }) %>
+<% }else{ %>
+	<p style="padding:10px; font-size:1.4em; font-weight:bold">There is no result</p>
+<% }%>

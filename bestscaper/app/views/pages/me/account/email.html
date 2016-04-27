@@ -1,0 +1,178 @@
+<html>
+	<head>
+		<%- include('../../../layout/head.html') -%>
+		<script src ="/libs/moment.min.js"></script>
+		<link rel="stylesheet" href="/libs/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+		<script src ="/libs/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+		<style>
+		.check-company{
+			margin-left:.2em;
+			margin-right:.2em;
+		}
+		.check-post{
+			margin-left:.2em;
+			margin-right:.2em;
+		}
+		.log{
+			padding:1.2em;
+			border-radius: 10px;
+			margin-bottom:10px;
+		}
+		.danger{
+			color:#D70000;
+		}
+		.success{
+			color:#419A1A;
+		}
+		.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+			border:none;
+		}
+		.table b{
+			font-size:1.4em;
+		}
+		#completeMessage{
+		    position: fixed;
+		    padding: 20px;
+		    color:white;
+		    background: RGBA(34, 180, 0, 0.9);
+		    display: none;
+		    border: 1px solid #6da0ff;
+		    border-radius: 3px;
+		    -webkit-box-shadow: 1px 1px 1px 1px #ccc;
+		    -moz-box-shadow: 1px 1px 1px 1px #ccc;
+		    box-shadow: 1px 1px 1px 1px #ccc;
+		    z-index: 999;
+		}
+		</style>
+	</head>
+	<body>
+		<%- include('../../../layout/header.html') -%>
+		<div class="container space-top-20">
+
+			<div class="row">
+				<%- include('../sidebar.html')%>
+				<div class="col-xs-10" style="padding-left:40px;">
+					<div>
+					<h2 style="font-size:1.6em; margin-bottom:20px;">Email notification</h2>
+						<form id="emailNotification">
+							<table class="table table-hover">
+								<tr>
+									<td colspan="2">
+										<b>General</b>
+									</td>
+								</tr>
+								<tr>
+									<td>Email from Bestscaper.com</td>
+									<td>
+										<label class="radio-inline">
+										  <input type="radio" name="bestscaper" value="true"> Yes
+										</label>
+										<label class="radio-inline">
+										  <input type="radio" name="bestscaper" value="false"> No
+										</label>
+									</td>
+								</tr>
+								<tr>
+									<td>Email from Subscribed Landscapers</td>
+									<td>
+										<label class="radio-inline">
+										  <input type="radio" name="subscribe" value="true"> Yes
+										</label>
+										<label class="radio-inline">
+										  <input type="radio" name="subscribe" value="false"> No
+										</label>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<b>Post</b>
+									</td>
+								</tr>
+								<tr>
+									<td>Email When you get offer</td>
+									<td>
+										<label class="radio-inline">
+										  <input type="radio" name="offer" value="true"> Yes
+										</label>
+										<label class="radio-inline">
+										  <input type="radio" name="offer" value="false"> No
+										</label>
+									</td>
+								</tr>
+								<tr>
+									<td>Email When your post has expired</td>
+									<td>
+										<label class="radio-inline">
+										  <input type="radio" name="expire" value="true"> Yes
+										</label>
+										<label class="radio-inline">
+										  <input type="radio" name="expire" value="false"> No
+										</label>
+									</td>
+								</tr>
+
+							</table>
+							<div style="text-align:right">
+								<input type="submit" class="btn btn-success" value="Change"> 
+							</div>
+						</form>
+
+					</div>
+				</div>
+			</div>
+		</div>	
+
+		<script>
+
+			$("input:radio[name='bestscaper'][value=<%=user.emailNotification.bestscaper%>]").prop('checked',true);
+			$("input:radio[name='subscribe'][value=<%=user.emailNotification.subscribe%>]").prop('checked',true);
+			$("input:radio[name='offer'][value=<%=user.emailNotification.offer%>]").prop('checked',true);
+			$("input:radio[name='expire'][value=<%=user.emailNotification.expire%>]").prop('checked',true);
+			
+			$("#emailNotification").on('submit',function(e){
+				e.preventDefault();
+
+				jQuery.ajax({
+				    url: "/users/account/change_email_notification", 
+				    type: "POST",
+				    statusCode : {
+				    	500 : function(err){
+				    		console.log(err);
+				    	},
+				    	400 : function(err){
+				    		console.log(err);
+				    	}
+				    },
+				    data: $(this).serialize(),
+				    success: function (data, textStatus, jqXHR) { 
+			    		// 		
+			    		if(data.status == 'success'){
+			    			saveComplete();
+			    		}
+				        
+				    }
+				});
+			})
+			function saveComplete(){
+			    var documentWidth = $(document).width() / 2;
+			    var documentHeight = $(window).height() / 2;
+
+			    var boxWidth = $('#completeMessage').width();
+			    var boxHeight = $('#completeMessage').height();
+
+			    var messageBoxLeft = documentWidth - (boxWidth / 2)
+			    var messageBoxTop = documentHeight - (boxHeight / 2);
+			    $('#completeMessage').css('z-index', 1061);
+			    $('#completeMessage').css('left', messageBoxLeft);
+			    $('#completeMessage').css('top', messageBoxTop);
+
+			    $('#completeMessage').delay(300).show();
+			    $('#completeMessage').delay(600).fadeOut('slow');
+			}
+		</script>
+		<%- include('../../../layout/footer.html') -%>
+		<div id="completeMessage">
+			<span class="glyphicon glyphicon-ok"></span> Save Complete!
+		</div>
+	</body>
+</html>

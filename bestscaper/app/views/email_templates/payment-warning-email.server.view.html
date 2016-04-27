@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+	<div style="width:600px; margin:0 auto;">
+		<%- include('./email-header.html')-%>
+
+			<p>To <%=companyName%>,</p>
+			<br>
+			<p>
+				Your membership subscription will be reverted to a Basic membership in 8 Days.<br/>
+				Please click <a href="http://www.bestscaper.com/companies/my_company/dashboard">here</a> to renew your membership subscription.
+			</p>
+			<br>
+			<br>
+			<p>The <%=appName%> Support Team</p>
+		<%- include('./email-footer.html')-%>
+	</div>
+</body>
+</html>

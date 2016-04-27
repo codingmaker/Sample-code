@@ -1,0 +1,197 @@
+<html>
+	<head>
+		<%- include('../../../layout/head.html') -%>
+		<link rel="stylesheet" href="/libs/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+		<script src ="/libs/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	</head>
+	<body>
+		<%- include('../../../layout/header.html') -%>
+		
+		<div class="container space-top-20">
+			<div class="row">
+				<%- include('../sidebar.html')%>
+				<div class="col-xs-10" style="padding-left:40px;">
+					<h2 style="font-size:1.6em; margin-bottom:20px;">Posts</h2>
+					
+					<a href="/users/me/post/write_post" class="btn btn-default pull-right">Write Post</a>
+					
+					<table class="table table-hover">
+						<thead>
+						  	<th>
+						  		Title
+						  	</th>
+						  	<th>
+						  		House
+						  	</th>
+						  	<th>
+						  		Offers
+						  	</th>
+						  	<th>
+						  		View
+						  	</th>
+						  	<th>
+						  		Status
+						  	</th>
+						  	<th>
+						  		Date
+						  	</th>
+						  	<th>
+						  		Modify
+						  	</th>
+						</thead>
+						<tbody>
+							<% if(posts.length > 0){ %>
+							<% posts.forEach(function(post){ %>
+								<tr >
+									<td class="review-post" data-h = '<%-post.house._id%>' data-p ='<%-post._id%>')>
+										<%-post.title%>		
+									</td>
+									<td class="review-post" data-h = '<%-post.house._id%>' data-p ='<%-post._id%>')>
+										<%-post.house.title%>		
+									</td>
+									
+									<td class="review-post" data-h = '<%-post.house._id%>' data-p ='<%-post._id%>')>
+										<%= post.offers.length %>
+									</td>
+									<td class="review-post" data-h = '<%-post.house._id%>' data-p ='<%-post._id%>')>
+										<%= post.view %> 
+									</td>
+									<td class="review-post" data-h = '<%-post.house._id%>' data-p ='<%-post._id%>')>
+										<%= post.wanted.status %>
+									</td>
+									<td class="review-post" data-h = '<%-post.house._id%>' data-p ='<%-post._id%>')>
+										<%= moment(post.posted).format('YYYY-MM-DD') %>	
+									</td>
+									
+									<td style="font-size:1.2em">
+										<% if(post.edit.editable) { %>
+											<a href="/users/me/post/<%-post._id%>/edit_post">
+												<i class="fa fa-pencil cursor-pointer"> </i>
+											</a>
+										<% } %>
+										<% if(post.edit.removable) {%>
+											<a href="#" data-toggle="modal" data-target="#confirmModal" data-h = '<%-post.house._id%>' data-p ='<%-post._id%>'>
+												<i class="fa fa-times cursor-pointer" style="color:red"></i>
+											</a>
+										<% }%>
+									</td>
+								</tr>
+							<% }) %>
+							<%}else{ %>
+								<tr>
+									<td colspan="7" style="text-align:center; font-weight:bold; font-size:1.4em">There is no post</td>
+								</tr>
+							<%}%>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="modal" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"data-backdrop="">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		    	<div class="modal-header">
+		    		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        			<h4 class="modal-title" id="exampleModalLabel">Remove Post</h4>
+				</div>
+		    	<div class="modal-body">
+		      		Do you want to remove your post?
+				</div>
+		    	<div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        <a class="btn btn-danger" id="removePost">Remove</a>
+			    </div>
+		    </div>
+		  </div>
+		</div>
+		<%- include('../../../layout/footer.html') -%>
+	</body>
+
+	<script>
+		$('#confirmModal').on('show.bs.modal', function (event) {
+		  var button = $(event.relatedTarget) // Button that triggered the modal
+		  var data = button.data(); // Extract info from data-* attributes
+		  console.log(data);
+		  // add event listner for removing .
+		  $('#removePost').on('click',function(){
+			removePost(data.h, data.p);
+		  })
+
+
+		})
+
+		$('.review-post').on('click',function(){
+			previewPost(this)
+		})
+		function previewPost(obj){
+			var data  = $(obj).data();
+			location.href= "/h/"+data.h+"/p/" + data.p;
+		}
+
+
+		var removePost = function(house, post){
+			
+			var formData = {
+				houseId : house,
+				postId : post
+			}
+			jQuery.ajax({
+			    url: "/users/me/post/remove_post", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: formData, 
+			    success: function (data, textStatus, jqXHR) { 
+		    		if(data.status == 'success'){
+		    			location.reload();
+		    		}
+			        
+			    }
+			});
+		}
+	</script>
+	<style>
+		.review-post{
+			cursor:pointer;
+		}
+		#map-canvas {
+			height:300px;
+		}
+		#completeMessage{
+		    position: fixed;
+		    padding: 20px;
+		    color:white;
+		    background: RGBA(34, 180, 0, 0.9);
+		    display: none;
+		    border: 1px solid #6da0ff;
+		    border-radius: 3px;
+		    -webkit-box-shadow: 1px 1px 1px 1px #ccc;
+		    -moz-box-shadow: 1px 1px 1px 1px #ccc;
+		    box-shadow: 1px 1px 1px 1px #ccc;
+		    z-index: 999;
+		}
+		.tab-content {
+			margin-top:20px;
+		    padding: 10px;
+		}
+
+		.nav-tabs {
+		    margin-bottom: 0;
+		}
+
+		.me-content{
+			min-height:600px;
+			border-radius: 10px;
+			padding:10px;
+			/*background-color: rgba(222,222,222,.3);*/
+
+		}
+	</style>
+	
+</html>

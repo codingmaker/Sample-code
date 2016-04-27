@@ -1,0 +1,17 @@
+<% if(companyResult.count > 0 ) { %> 
+	<% companyResult.companies.forEach(function(company){ %>
+		<a href="/c/<%=company._id.id%>" target="_blank">
+			<div class="company-container">
+				<% if(company._id.companyLogo){ %>
+					<%=img_tag(company._id.companyLogo.url,'image-rate') %>
+				<% }else{ %>
+					<%=img_tag('/images/noimage.png','image-rate') %>
+				<% }%>
+				<p class="company-rating" data-score = "<%=company.avgRating%>"></p>
+				<p class="company-name-size"><%=company._id.companyName%></p>
+			</div>
+		</a>
+	<% }) %>
+<% }else{ %>
+	<p style="padding:10px; font-size:1.4em; font-weight:bold">There is no result</p>
+<% } %>

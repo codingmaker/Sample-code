@@ -1,0 +1,122 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+// process.env.PORT = 80;
+
+var app = require('../config/express'),
+config = require('../config/config'),
+debug = require('debug')('node-mongoose-form:server'),
+mongoose = require('mongoose'),
+http = require('http');
+var expire = require('../app/controllers/payments/payments.expire.server.controller');
+/**
+ * Get port from environment and store in Express.
+ */
+
+// console.log(process.env.PORT);
+// console.log(config.db.uri);
+// console.log(config.db.options);
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', config.port);
+// Bootstrap db connection
+var db = mongoose.connect(config.db.uri, config.db.options, function(err) {
+  if (err) {
+    console.log('this is MongoDB error')
+  }
+});
+
+mongoose.connection.on('error', function(err) {
+  // console.error(chalk.red('MongoDB connection error: ' + err));
+    process.exit(-1);
+  }
+);
+// Bootstrap passport config
+require('../config/passport')();
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+
+
+  // check expired payment company every 2 hours.
+  var interval = setInterval(function() {
+    expire.updateExpiredCompany();
+  }, (1000*60*60*2) );
+
+  // warning payment company every 2 hours.
+  var interval = setInterval(function() {
+    expire.warningExpire();
+  }, (1000*60*60*3) );
+
+}

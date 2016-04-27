@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+	<head>
+		<%- include('head.html') -%>
+	</head>
+
+	<body>
+		<%- include('header.html') -%>
+		<div style="margin-top:70px;" class="container">
+
+			<p>total : <%-count%></p>
+			<table class="table">
+				<tr>
+					<td>Email</td>
+					<td>User Name</td>
+					<td>Contact Number</td>
+					<td>Registered At</td>
+				</tr>
+				<% users.forEach(function(user){ %>
+				<tr>
+					<td><%-user.email%></td>
+					<td><%-user.firstName + ' ' + user.lastName%></td>
+					<td><%-user.contactNumber%></td>
+					<td><%-moment(user.created).format('YYYY-MM-DD HH:mma')%></td>
+				</tr>
+				<%})%>
+			</table>
+		</div>
+	</body>
+</html>

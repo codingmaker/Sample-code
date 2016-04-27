@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+<div style="width:600px; margin:0 auto;">
+	<%- include('./email-header.html')-%>
+		
+	<p style="font-size:1.2em"><b>Your transaction was processed successfully.</b></p>
+
+	<p style="font-weight:bold">Invoice Details:</p>
+	<p><span style="margin-right:2em">Payment Date : </span><%-created%></p>
+	<p><span style="margin-right:2em">Payment Total : </span><%=(currency).toUpperCase() +' '+ total%></p>
+	<p><span style="margin-right:2em">Purchase Details</span> </p>
+
+	<p style="font-weight:bold"> Item Details</p>
+	<p> <%=item%> 	<%=(currency).toUpperCase() +' '+ total%> </p>
+	<p> Total: <%=(currency).toUpperCase() +' '+ total%></p>
+	<br>
+	<br>
+	<p>The <%=appName%> Support Team</p>
+	<%- include('./email-footer.html')-%>
+</div>
+</body>
+</html>
+

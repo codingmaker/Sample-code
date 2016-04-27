@@ -1,0 +1,253 @@
+<div class="col-xs-3"  style="padding:10px;">
+	<div style="padding:10px; border-radius:5px; border:1px solid #ccc;">
+		
+		<p style="margin-bottom:10px; font-size:1.2em; text-align:center;">
+			<span style="font-size:1.4em; color:#688AD4" id="subscriberCount"><%= company.subscribers.length%></span>
+			people subscribed.
+		</p>
+
+			<button class="btn btn-success btn-lg btn-block active" id="removeSubscriber">
+				<i class="fa fa-times-circle"></i> Unsubscribe
+			</button>
+			<%if(company.valid){ %>
+			<button class="btn btn-success btn-lg btn-block" id="addSubscriber">
+				<i class="fa fa-plus"></i> Subscribe
+			</button>
+			<%}%>
+			<%if(company.valid){ %>
+				<button class="btn btn-info btn-lg btn-block" id="contactBtn" data-toggle="modal" data-target="#contactModal">
+					<i class="fa fa-envelope"></i> Contact
+				</button>
+			<%}else{%>
+				<button class="btn btn-info btn-lg btn-block disabled">
+					<i class="fa fa-envelope"></i> Contact
+				</button>
+			<%}%>
+		<%if(company.valid){ %>
+		<div>
+			
+			<h4>Contact Information</h4>
+			<% company.companyContactNumber.forEach(function(contactNumber){ %>
+				<p style="font-size:1.2em"><i class="fa fa-phone" style="font-size:1.4em; color:#757377"></i> 
+					<span><%-contactNumber.number%></span>
+					<span>(<%-contactNumber.note%>)</span>
+				</p>
+			<% }) %>
+			
+
+			<address style="margin-top:10px;">
+				<i class="fa fa-map-marker" style="font-size:1.8em; color:#E58D69;"></i>
+ 				<%-company.companyAddress.findAddress%>
+			</address>
+			
+		</div>
+
+		<%}%>
+	</div>
+</div>
+
+
+<!-- Modal -->
+<%if(company.valid){ %>
+<div class="modal" id="contactModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-body">
+        <form id="contactForm">
+			<p style="font-size:1.4em; margin-bottom:15px;"><b>Contact information</b></p>
+        	<div class="form-group">
+			    <label for="contact-firstName">*Name</label>
+			    <div style="display:block;">
+			    	<input type="text" class="form-control" id="contact-firstName" placeholder="First Name" style="display:inline-block; width:200px;" name="firstName">
+			    	<input type="text" class="form-control" id="contact-lastName" placeholder="Last Name" style="display:inline-block; width:200px;" name="lastName">
+			    </div>
+			</div>
+			<div class="form-group">
+			    <label for="contact-email">*Email address</label>
+			    <input type="email" class="form-control" id="contact-email" name="email" placeholder="Email">
+			</div>
+			<div class="form-group">
+			    <label for="contact-number">Contact Number</label>
+			    <input type="text" class="form-control" id="contact-number" name="contactNumber" placeholder="Contact number">
+			</div>
+			<hr/>
+			<p style="font-size:1.4em; margin-bottom:15px;"><b>Message</b></p>
+			<div class="form-group">
+			    <input type="text" class="form-control" id="contact-number" placeholder="Title" style="margin-bottom:10px;" name="title">
+			    <textarea class="form-control" placeholder = "Message to landscaper" rows="5"
+			    name="message"></textarea>
+			</div>
+			<input type="hidden" name="companyId" value="<%-company._id%>">
+        </form>
+        <p id="contactHint" style="color:red; padding:10px;"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success" id="submitBtn">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+<%}%>
+<script>
+	<% if(subscribed){ %>
+		$('#addSubscriber').css('display','none');
+		$('#removeSubscriber').css('display','block');
+
+	<% }else{ %>
+		$('#addSubscriber').css('display','block');
+		$('#removeSubscriber').css('display','none');
+	<% } %>
+	<% if(typeof user != 'undefined'){ %>
+		$('#contact-firstName').val("<%-user.firstName%>");
+		$('#contact-lastName').val("<%-user.lastName%>");
+		$('#contact-email').val("<%-user.email%>");
+		$('#contact-number').val("<%-user.contactNumber%>");
+	<% }%>
+
+
+
+	var option = {
+		"allowExtensions" : true,
+		"autoFormat" : true
+	}
+
+	var number = $("#contact-number").intlTelInput(option);
+
+
+	$("#addSubscriber").on('click',function(event){
+		event.preventDefault();
+		addSubscriber()
+	})
+
+	$("#removeSubscriber").on('click',function(event){
+		event.preventDefault();
+		removeSubscriber();
+	})
+	
+	$('#submitBtn').on('click',function(event){
+		event.preventDefault();
+		createContact();
+	})
+
+	var addSubscriber = function(){
+		var formData = {
+			companyId : "<%=company._id%>"
+		}
+		jQuery.ajax({
+		    url: "/companies/subscriber/add_subscriber", 
+		    type: "POST",
+		    statusCode : {
+		    	500 : function(err){
+		    		console.log(err);
+		    	},
+		    	400 : function(err){
+		    		modalChange('signin');
+		    	}
+		    },
+		    data: formData, 
+		    success: function (data, textStatus, jqXHR) { 
+	    		if(data.status == 'success'){
+    				changeSubscription('add',data.subscriberCount);
+	    		}
+		        
+		    }
+		});	
+	}
+
+	var removeSubscriber = function(){
+		var formData = {
+			companyId : "<%=company._id%>"
+		}
+		jQuery.ajax({
+		    url: "/companies/subscriber/remove_subscriber", 
+		    type: "POST",
+		    statusCode : {
+		    	500 : function(err){
+		    		console.log(err);
+		    	},
+		    	400 : function(err){
+		    		modalChange('signin');
+		    	}
+		    },
+		    data: formData, 
+		    success: function (data, textStatus, jqXHR) { 
+	    		if(data.status == 'success'){
+    				changeSubscription('remove',data.subscriberCount);
+		        }
+		    }
+		});	
+	}
+
+
+
+	var createContact = function(){
+		console.log('hoho')
+		if($('#contact-firstName').val()){
+			if($('#contact-lastName').val()){
+				if($('#contact-email').val()){
+					$('#submitBtn').attr('disabled',true);
+					jQuery.ajax({
+					    url: "/companies/contact/create_contact", 
+					    type: "POST",
+					    statusCode : {
+					    	500 : function(err){
+					    		console.log(err);
+					    	},
+					    	400 : function(err){
+					    		console.log(err);
+					    	}
+					    },
+					    data: $('#contactForm').serialize(), 
+					    success: function (data, textStatus, jqXHR) { 
+				    		if(data.status =='success'){
+				    			var message = '<p style="text-align:center; padding:10px;"><i class="fa fa-check" style="color:#1CD322; font-size:2em"></i>';
+				    			message += 'The message has been sent.</p>';
+
+				    			$('#contactModal .modal-body').html(message);
+				    			$('#contactModal .modal-footer').html('');
+					    		window.setTimeout(function(){
+					    			$('#contactModal').modal('hide');
+					    		},2000);
+				    		}
+				    		
+							
+					    }
+					});	
+
+				}else{
+					$('#contact-email').focus();
+					$('#contactHint').html('Please fill your email');
+				}
+			}else{
+				$('#contact-lastName').focus();
+				$('#contactHint').html('Please fill your Lastname');
+
+			}
+		}else{
+			$('#contact-firstName').focus()
+			$('#contactHint').html('Please fill your Firstname');
+
+		}
+		
+	}
+
+
+	var changeSubscription = function(eventName, count){
+		if(eventName =='add'){
+			$('#addSubscriber').css('display','none');
+			$('#removeSubscriber').css('display','block');
+		}else if(eventName =='remove'){
+			$('#addSubscriber').css('display','block');
+			$('#removeSubscriber').css('display','none');
+		}
+		$('#subscriberCount').html(count);
+	}
+</script>
+<style type="text/css">
+	
+	.form-group label{
+		margin-bottom:10px;
+	}
+</style>

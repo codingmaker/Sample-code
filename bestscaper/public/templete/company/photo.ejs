@@ -1,0 +1,7 @@
+
+<% album.photos.forEach(function(photo){%>
+	<div class="photo-wrapper" style="padding:5px; position:relative" >
+		<i class="fa fa-times remove-photo" onclick="removePhoto('<%=photo._id%>',<%=photo.size%>)"></i>
+		<%= img_tag(photo.url,'photo-size')%> 
+	</div>
+<%}) %>

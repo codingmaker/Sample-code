@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+	<head>
+		<%- include('layout/head.html') -%>
+		
+		<script src="/libs/moment.min.js"></script>
+		<script src="/libs/ejs_production.js"></script>
+		<script src ="/libs/geocomplete/jquery.geocomplete.js"></script>
+		
+		<link rel="stylesheet" href="/libs/raty/lib/jquery.raty.css">
+		<script src="/libs/raty/lib/jquery.raty.js"></script>
+		<script src="/libs/pagination/jquery.twbsPagination.min.js"></script>
+		<script src="/libs/shorten/src/jquery.shorten.js"></script>
+		
+		<meta property="fb:app_id" content="1525465817702104">
+		<meta property="og:site_name" content="Bestscaper">
+		<meta property="og:url" content="http://www.bestscaper.com">
+		<meta property="og:title" content="<%-title%>">
+		<meta property="og:description" content="<%-description%>">
+		<meta property="og:image" content="http://bestscaper.com/images/bestscaper.jpeg">
+		<script type="application/ld+json">
+			{
+			  "@context": "http://schema.org",
+			  "@type": "Organization",
+			  "url" : "http://www.bestscaper.com",
+			  "logo" : "http://bestscaper.com/images/bestscaper.jpeg"
+			}
+
+		</script>
+		<script type="application/ld+json">
+			{
+				"@context": "http://schema.org",
+				"@type": "WebSite",
+				"url": "http://www.bestscaper.com/"
+			}
+		</script>
+	</head>
+	<body>
+
+		<%- include('layout/header.html') -%>
+		
+
+		<div class="container">
+			<div style="margin-top:40px;">
+				<p style="font-size:5em; font-weight:bold; margin-bottom:15px;">Oops!</p>
+				<p style="font-size:2em; margin-bottom:15px;" ><%-message%></p>
+			</div>
+		</div>
+
+
+		<%- include('layout/footer.html') -%>
+	</body>
+</html>
+

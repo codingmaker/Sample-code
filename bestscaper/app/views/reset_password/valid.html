@@ -1,0 +1,49 @@
+<html>
+	<head>
+
+		<%- include('../layout/head.html') -%>
+	</head>
+	<body>
+		
+		<div style="padding:20px;">
+			<form action = <%= "/auth/reset/"+token %> method="post" id="reset-form">
+				<div class="form-group">
+				    <label for="newPassword">New Password</label>
+				    <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="New Password">
+				</div>
+				<div class="form-group">
+				    <label for="verifyPassword">Verify Password</label>
+				    <input type="password" class="form-control" id="verifyPassword" name="verifyPassword" placeholder="Verify Password">
+				</div>
+				<button type="submit" class="btn btn-default">Submit</button>
+				<p id="reset-message"></p>
+			</form>
+		</div>
+
+
+	</body>
+
+	<script>
+		$( "#reset-form" ).on('submit', function( event ) {
+			
+
+			var newPassword = $('#newPassword').val();
+			var verifyPassword = $('#verifyPassword').val();
+
+			if(newPassword === verifyPassword){
+
+				if(newPassword.length > 6){
+					$("#reset-form").submit();
+				}else{
+					event.preventDefault();
+					$('#reset-message').html('Password is too short.');
+					$('#newPassword').focus();
+				}
+			}else{
+				event.preventDefault();
+				$('#reset-message').html('Password is not matched.');
+				$('#verifyPassword').focus();
+			}
+		});
+	</script>
+</html>

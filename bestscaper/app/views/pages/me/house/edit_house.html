@@ -1,0 +1,666 @@
+<html>
+	<head>
+		<%- include('../../../layout/head.html') -%>
+		<link rel="stylesheet" href="/libs/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+		<script src ="/libs/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+		<script src ="/libs/geocomplete/jquery.geocomplete.js"></script>
+		<script src="/libs/ejs_production.js"></script>
+		
+	</head>
+	<style>
+		.main-image{
+			border:1px solid #ccc;
+			height:500px;
+		}
+		.main-image img{
+			width:100%;
+			height:100%;
+		}
+		.main-image:hover>.tool-box{
+			display: block;
+		}
+		.tool-box{
+			text-shadow: rgb(255, 255, 255) -1px 0px 4px;
+			position:absolute;
+			top:10px;
+			right:10px;
+			font-size:1.2em;
+			display: none;
+		}
+		.tool-box .fa{
+			cursor:pointer;
+		}
+		.tool-box a{
+			color:#525252;
+		}
+		.tool-box .fa-times{
+			color:red;
+		}
+		.tool-box .fa-pencil{
+			color:black;
+		}
+		
+		
+	</style>
+	<body>
+		<%- include('../../../layout/header.html') -%>
+		
+		<div class="container space-top-20">
+			<div class="row">
+				<%- include('../sidebar.html')%>
+				<div class="col-xs-10" style="padding-left:40px;">
+					<div class="navigation-bar">
+						<a href="/users/me/house/select_house">Select Your house</a> > Edit Your house
+						(<%=house.title%>)
+					</div>
+					<div class="me-content">
+						  <!-- Nav tabs -->
+						<ul class="nav nav-pills" role="tablist">
+							<li role="presentation"><a href="#photos" aria-controls="photos" role="tab" data-toggle="tab">Photos</a></li>
+						    <li role="presentation"><a href="#setting" aria-controls="setting" role="tab" data-toggle="tab">Settings</a></li>
+						    
+						</ul>
+						  <!-- Tab panes -->
+						<div class="tab-content">
+						    <div role="tabpanel" class="tab-pane" id="photos">
+						    	<div style="text-align:right; margin-bottom:15px;">
+									<span class="btn btn-success fileinput-button">
+								        <i class="glyphicon glyphicon-plus"></i>
+								        <span>Select images...</span>
+								        <!-- The file input field used as target for the file upload widget -->
+								        <input id="photoUpload" type="file" name="files" multiple>
+								    </span>
+							    </div>
+								<div class="row">
+									<div class="col-xs-5 main-image" style="position:relative">
+										<div class="tool-box">
+											<!-- edit -->
+											<a href="#" data-toggle="modal" data-target="#mainPhoto-modal"><i class="fa fa-pencil"></i></a>
+											<!-- delete -->
+											<i class="fa fa-times" onclick="removeMainPhoto()"></i>
+										</div>
+										<%if(house.mainPhoto.name){ %>
+
+											<img src="<%-house.mainPhoto.url%>" id="houseMainPhoto">
+											
+
+										<%}else{%>
+											<img src="/images/noimage.png" id="houseMainPhoto">
+										<%}%>
+									</div>
+									<div class="col-xs-6 col-xs-offest-1" style="position:relative">
+										
+										<div id="photoArea">
+											<% house.photos.forEach(function(photo){ %>
+												<div class="photo-wrapper" style="">
+												<i class="fa fa-times remove-photo" onclick="removePhoto('<%=photo._id%>')"></i>
+													<img src="<%-photo.url%>" class="house-photo"> 
+												</div>
+											<% }) %>
+										</div>
+									</div>
+								</div>
+						    </div>
+						    
+							<!-- tab-house Setting -->
+						    <div role="tabpanel" class="tab-pane" id="setting">
+						    	<div class="panel panel-default">
+								  <div class="panel-heading">
+								    <h3 class="panel-title">Required</h3>
+								  </div>
+								  <div class="panel-body">
+								    <div class="form-group">
+									    <label for="exampleInputFile">House Title</label>
+									    <input type="text" class="form-control" id="title">
+									</div>
+									<div class="form-group">
+									    <label for="exampleInputFile">Contactable Phone Number</label>
+									    <input type="text" class="form-control" id="contactableNumber">
+									</div>
+									<div class="form-group">
+									    <label for="exampleInputFile">Contactable Email</label>
+									    <input type="text" class="form-control" id="contactableEmail">
+									</div>
+								  </div>
+								</div>
+
+								<div class="panel panel-default">
+								  <div class="panel-heading">
+								    <h3 class="panel-title">Address & Map setting</h3>
+								  </div>
+								  <div class="panel-body">
+								    <div class="form-group">
+									    <label for="exampleInputEmail1">* House Address</label>
+									    <input type="text" class="form-control" id="address" placeholder="Street, city, State&Province, Country">
+									</div>
+									<div class="form-group">
+									    <label for="exampleInputEmail1">House Address2</label>
+									    <input type="text" class="form-control" id="address2" placeholder="ex)Unit Number, Apt number">
+									</div>
+									<div id="map-canvas"></div>
+								  </div>
+								</div>
+
+
+								<div style="text-align:center">
+									<button class="btn btn-lg btn-danger" onclick="updateHouse()">Save</button>
+								</div>
+						    </div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+		<!-- picture modal -->
+		<div class="modal" id="mainPhoto-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+		  	<div class="modal-dialog modal-sm">
+		    	<div class="modal-content">
+		      		<div class="modal-body">
+		        		<span class="btn btn-success fileinput-button">
+					        <i class="glyphicon glyphicon-plus"></i>
+					        <span>Select image</span>
+					        <!-- The file input field used as target for the file upload widget -->
+					        <input id="mainPhotoUpload" type="file" name="files" >
+					    </span>
+		      		</div>
+		       		<div class="modal-footer">
+		        		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		        		<button type="button" class="btn btn-primary" onclick="saveProfile()">Save changes</button>
+		    		</div>
+		    	</div>
+		  	</div>
+		</div>
+
+		<div id="completeMessage">
+			<span class="glyphicon glyphicon-ok"></span> Save Complete!
+		</div>
+
+		<div id="loadingText">
+			<div id="loadingBox">
+				<i class="fa fa-spinner fa-spin" style="font-size:1.2em"></i> uploading.. Please wait
+			</div>
+		</div>
+		<%- include('../../../layout/footer.html') -%>
+	</body>
+	<script>
+
+		var uploadedFiles = [];
+		var marker;
+
+		var addressComponentForm = {
+		  street_number: 'short_name',
+		  route: 'long_name',
+		  locality: 'long_name',
+		  administrative_area_level_1: 'short_name',
+		  country: 'long_name',
+		  postal_code: 'short_name'
+		};
+
+		var completeAddress = {
+			street_number: null,
+			route: null,
+			locality: null,
+			administrative_area_level_1: null,
+			country: null,
+			postal_code: null
+		};	
+
+		// for better performence user can navigate with hash tags
+		$(function(){
+		  var hash = window.location.hash;
+		  hash && $('ul.nav a[href="' + hash + '"]').tab('show');
+		  $('.nav-pills a').click(function (e) {
+			e.preventDefault();
+		    $(this).tab('show');
+		    window.location.hash = this.hash;
+		    // $('html,body').scrollTop(scrollmem);
+		  });
+		});
+		
+
+		// save the post data with Ajax
+		var updateHouse = function(){
+			var formData = {
+				title : $('#title').val(),
+				contactNumber : $('#contactableNumber').val(),
+				email : $('#contactableEmail').val(),
+				address : completeAddress,
+				changedAt : new Date(),
+				location : {}
+			}
+			formData.address = completeAddress;
+			formData.address.findAddress = $('#address').val();
+			formData.address.other = $('#address2').val();
+			formData.location.coordinates = [marker.getPosition().lng(),marker.getPosition().lat()];
+
+			console.log(formData)
+			jQuery.ajax({
+			    url: "/users/me/house/<%=house._id%>/edit_house/update_house", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: formData, 
+			    success: function (data, textStatus, jqXHR) { 
+		    		if(data.status == 'success'){
+		    			saveComplete();
+		    		}
+			        
+			    }
+			});
+		}
+
+		function loadingScreen(show){
+			if(show){
+				$('#loadingText').css('display','block')
+			}else{
+				$('#loadingText').css('display','none')
+			}	
+		}
+		
+
+		function saveComplete(){
+		    var documentWidth = $(document).width() / 2;
+		    var documentHeight = $(window).height() / 2;
+
+		    var boxWidth = $('#completeMessage').width();
+		    var boxHeight = $('#completeMessage').height();
+
+		    var messageBoxLeft = documentWidth - (boxWidth / 2)
+		    var messageBoxTop = documentHeight - (boxHeight / 2);
+		    $('#completeMessage').css('z-index', 1061);
+		    $('#completeMessage').css('left', messageBoxLeft);
+		    $('#completeMessage').css('top', messageBoxTop);
+
+		    $('#completeMessage').delay(300).show();
+		    $('#completeMessage').delay(600).fadeOut('slow');
+		}
+
+		
+				
+
+		function fillInAddress(place){
+			for (var i = 0; i < place.address_components.length; i++) {
+
+			    var addressType = place.address_components[i].types[0];
+			    if (addressComponentForm[addressType]) {
+			    	var val = place.address_components[i][addressComponentForm[addressType]];
+			    	completeAddress[addressType] = val;
+			    }
+			}
+		}
+
+
+		function initSetting(){
+
+			var option = {
+				"allowExtensions" : true,
+				"autoFormat" : true
+			}
+			var number = $("#contactableNumber").intlTelInput(option);
+
+			// House setting previouse data.
+			$('#title').val("<%-house.title%>");
+
+			$('#contactableNumber').val("<%-house.contactNumber%>");
+			$('#contactableEmail').val("<%-house.email%>");
+			$('#address2').val("<%-house.address.other%>");
+
+			
+			var input = document.getElementById('address');
+		    var mapOptions = {
+		        center: new google.maps.LatLng(<%=house.location.coordinates[1] + ',' + house.location.coordinates[0]%>),
+		        zoom: 15
+		    };
+		    var map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+		    
+		    // var autocomplete = new google.maps.places.Autocomplete(input);
+		    
+		    // autocomplete.bindTo('bounds', map);
+
+		    // var infowindow = new google.maps.InfoWindow();
+		    marker = new google.maps.Marker({
+		        map: map,
+		        anchorPoint: new google.maps.Point(0, -29),
+		        draggable : true
+		    });
+		    
+		    //init marker
+		    marker.setIcon(/** @type {google.maps.Icon} */({
+		        url: 'http://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png',
+		        size: new google.maps.Size(71, 71),
+		        origin: new google.maps.Point(0, 0),
+		        anchor: new google.maps.Point(17, 34),
+		        scaledSize: new google.maps.Size(35, 35)
+		    }));
+		    marker.setPosition(new google.maps.LatLng(parseFloat(<%=house.location.coordinates[1]%>),parseFloat(<%=house.location.coordinates[0]%>)) );
+
+		    //when client type the address 
+		  //   google.maps.event.addListener(autocomplete, 'place_changed', function() {
+		  //       var place = autocomplete.getPlace();
+				// // when place is not exist on the auto complete form.
+				// if (!place.geometry) {
+		  //         return ;
+		  //       }else{
+		  //   		// If the place has a geometry, then present it on a map.
+		  //       	fillInAddress(place);
+		  //       	if (place.geometry.viewport) {
+			 //          map.fitBounds(place.geometry.viewport);
+			 //        } else {
+			 //          map.setCenter(place.geometry.location);
+			 //          map.setZoom(17);  // Why 17? Because it looks good.
+			 //        }
+			        
+			 //        marker.setPosition(place.geometry.location);
+			 //        marker.setVisible(true);
+		  //       }
+		        
+		  //   })
+
+
+		    $("#address").geocomplete("find", "<%-house.address.findAddress%>")
+		    .bind("geocode:result", function(event, place){
+			    fillInAddress(place);
+			    if (!place.geometry) {
+		          return ;
+		        }else{
+		    		// If the place has a geometry, then present it on a map.
+		        	fillInAddress(place);
+		        	if (place.geometry.viewport) {
+			          map.fitBounds(place.geometry.viewport);
+			        } else {
+			          map.setCenter(place.geometry.location);
+			          map.setZoom(17);  // Why 17? Because it looks good.
+			        }
+			        
+			        marker.setPosition(place.geometry.location);
+			        marker.setVisible(true);
+		        }
+			});
+		}
+
+		// when setting tab is shown init map and address
+		$('a[data-toggle="tab"][href= "#setting"]').on('shown.bs.tab', function (e) {
+		  initSetting();
+		})
+		
+
+
+
+		function updateMainPhoto(file){
+
+			jQuery.ajax({
+			    url: "/users/me/house/<%-house._id%>/edit_house/update_main_photo", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: file,
+			    success: function (data, textStatus, jqXHR) { 
+		    		if(data.status == 'success'){
+						$('#houseMainPhoto').attr('src',file.url);
+						$('#mainPhoto-modal').modal('hide');
+						loadingScreen(false);
+		    		}
+			        
+			    }
+			});
+		}
+
+		function renderPhoto(photos){
+			var target = $('#photoArea');
+			var html = new EJS({url: '/templete/me/photo'}).render({photos : photos})
+			target.html(html);
+		}
+
+
+		function updatePhotos(){
+			
+			var formData = {
+				photos : uploadedFiles
+			}
+
+			jQuery.ajax({
+			    url: "/users/me/house/<%-house._id%>/edit_house/update_photos", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: formData,
+			    success: function (data, textStatus, jqXHR) { 
+		    		// 		
+		    		if(data.status == 'success'){
+		    			// render the images by using ejs template.
+		    			renderPhoto(data.photos);
+		    			loadingScreen(false);
+		    			uploadedFiles = [];
+		    		}
+			        
+			    }
+			});
+		}
+
+
+		var url = '/uploadImage/user/<%-user._id%>';
+		
+
+		//upload house's photo
+	    $('#mainPhotoUpload').fileupload({
+	        url: url,
+	        dataType: 'json',
+	      	// add the even for validating the file.
+	        add: function(e, data) {
+	        	loadingScreen(true);
+	            var uploadErrors = [];
+	            var acceptFileTypes = /^image\/(gif|jpe?g|png)$/i;
+	            if(data.originalFiles[0]['type'].length && !acceptFileTypes.test(data.originalFiles[0]['type'])) {
+	                uploadErrors.push('Not an accepted file type');
+	            }
+	            if(data.originalFiles[0]['size'] > 4194304) {
+	                uploadErrors.push('Filesize is too big');
+	            }
+	            if(uploadErrors.length > 0) {
+	                alert(uploadErrors.join("\n"));
+	            } else {
+	                data.submit();
+	            }
+	        },
+	        done: function (e, data) {
+	        	console.log(data);
+	            $.each(data.result.files, function (index, file) {
+					// $('#profilePicure').attr("src",file.url)
+					updateMainPhoto(file);
+					// updateProfilePhoto(file);	                
+	            });
+	        }
+	    })
+		
+		// when upload is done to send this array to the server.
+		
+		$('#photoUpload').fileupload({
+	        url: url,
+	        dataType: 'json',
+	      	// add the even for validating the file.
+	        add: function(e, data) {
+	        	loadingScreen(true);
+	            var uploadErrors = [];
+	            var acceptFileTypes = /^image\/(gif|jpe?g|png)$/i;
+	            if(data.originalFiles[0]['type'].length && !acceptFileTypes.test(data.originalFiles[0]['type'])) {
+	                uploadErrors.push('Not an accepted file type');
+	            }
+	            console.log(data.originalFiles[0]['size']);
+	            if(data.originalFiles[0]['size'] > 4194304) {
+	                uploadErrors.push('Filesize is too big');
+	            }
+	            if(uploadErrors.length > 0) {
+	                alert(uploadErrors.join("\n"));
+	            } else {
+	                data.submit();
+	            }
+	        },
+	        done: function (e, data) {
+	            $.each(data.result.files, function (index, file) {
+					uploadedFiles.unshift(file);
+					// updateProfilePhoto(file);	                
+	            });
+	        },
+	        stop: function (e) {
+            	updatePhotos(uploadedFiles);
+	        }
+	       
+	    })
+
+		function removePhoto(photoId){
+			var formData = {
+				photoId : photoId
+			}
+
+			jQuery.ajax({
+			    url: "/users/me/house/<%-house._id%>/edit_house/remove_photo", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: formData,
+			    success: function (data, textStatus, jqXHR) { 
+		    		// 		
+		    		if(data.status == 'success'){
+		    			// render the images by using ejs template.
+		    			renderPhoto(data.photos);
+		    		}
+			        
+			    }
+			});
+		};
+
+		function removeMainPhoto(){
+			
+			jQuery.ajax({
+			    url: "/users/me/house/<%-house._id%>/edit_house/remove_main_photo", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: {},
+			    success: function (data, textStatus, jqXHR) { 
+		    		// 		
+		    		if(data.status == 'success'){
+		    			// render the images by using ejs template.
+		    			$('#houseMainPhoto').attr('src','/images/noimage.png');
+		    			// renderPhoto(data.photos);
+		    		}
+			        
+			    }
+			});
+		};
+	</script>
+	<style>
+		.photo-wrapper{
+			display:inline-block;
+			margin-left:10px;
+			margin-bottom:10px;
+			position:relative;
+
+		}
+		.photo-wrapper .house-photo{
+			width:132px;
+			height:84px;
+		}
+		.photo-wrapper:hover .remove-photo{
+			display:block;
+		}
+		.remove-photo{
+			cursor:pointer;
+			position:absolute;
+			font-size:1.2em; 
+			top:1px; 
+			right:5px; 
+			color:red;
+			display:none;
+		}
+
+		#map-canvas {
+			height:300px;
+		}
+		#completeMessage{
+		    position: fixed;
+		    padding: 20px;
+		    color:white;
+		    background: RGBA(34, 180, 0, 0.9);
+		    display: none;
+		    border: 1px solid #6da0ff;
+		    border-radius: 3px;
+		    -webkit-box-shadow: 1px 1px 1px 1px #ccc;
+		    -moz-box-shadow: 1px 1px 1px 1px #ccc;
+		    box-shadow: 1px 1px 1px 1px #ccc;
+		    z-index: 999;
+		}
+		.tab-content {
+			margin-top:20px;
+		    padding: 10px;
+		}
+
+		.nav-tabs {
+		    margin-bottom: 0;
+		}
+
+		.me-content{
+			min-height:600px;
+			border-radius: 10px;
+			padding:10px;
+			/*background-color: rgba(222,222,222,.3);*/
+
+		}
+
+		#loadingText {
+			font-size:1.2em;
+		    position: absolute;
+		    top: 50%;
+		    left: 0;
+		    width: 100%;
+		    margin-top: -10px;
+		    line-height: 20px;
+		    text-align: center;
+		    z-index:2000;
+		    display:none;
+		}
+		#loadingBox{
+			border:2px solid #ccc;
+			padding:20px;
+			width:550px;
+			margin:0 auto;
+			background: RGBA(252, 255, 172, 0.7);
+			border-radius: 10px;
+			
+		}
+	</style>
+</html>

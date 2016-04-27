@@ -1,0 +1,300 @@
+<html>
+	<head>
+		<%- include('../../../layout/head.html') -%>
+		<script src ="/libs/moment.min.js"></script>
+
+		<link rel="stylesheet" href="/libs/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+		<script src ="/libs/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	</head>
+	<body>
+		<%- include('../../../layout/header.html') -%>
+		
+		<div class="container space-top-20">
+			<div class="row">
+				<%- include('../sidebar.html')%>
+				<div class="col-xs-10" style="padding-left:40px;">
+					<div class="navigation-bar">
+						<a href="/users/me/post/select_post">Select Post</a> > Write post
+					</div>
+					<div class="me-content">
+						
+						<div class="panel panel-default">
+						  	<div class="panel-heading">
+						    	<h3 class="panel-title">Select Your House</h3>
+						  	</div>
+						  	<div class="panel-body">
+						  		<%
+						  			houses.forEach(function(house){ %>
+										<div class="radio">
+										  <label>
+										    <input type="radio" name="house" value="<%-house._id%>">
+										    <%=house.title%>
+										  </label>
+										</div>
+					  				<% }) %>
+						  		%>
+						  	</div>
+						</div>
+						<div role="tabpanel" class="tab-pane active" id="post">
+
+							<div class="panel panel-default">
+							  	<div class="panel-heading">
+							    	<h3 class="panel-title">Post exp.date</h3>
+							  	</div>
+							  	<div class="panel-body">
+					  				
+								  	<div id="toDate" class="input-group">
+								    	<input data-format="yyyy-MM-dd" type="text" class="form-control">
+								    	<span class="input-group-addon add-on" >
+								      		<i data-time-icon="icon-time" data-date-icon="icon-calendar" class="fa fa-calendar">
+								      		</i>
+								    	</span>
+								  	</div>
+										
+							  	</div>
+							</div>
+							<div class="panel panel-default">
+							  	<div class="panel-heading">
+							    	<h3 class="panel-title">Permission to read offers on this post</h3>
+							  	</div>
+							  	<div class="panel-body" style="line-height:1.6;">
+							  		<div class="radio">
+									  	<label>
+									    	<input type="radio" name="hide" value="true" checked>
+									    	<i class="fa fa-lock"></i> Only Me
+									  	</label>
+									</div>
+									<div class="radio">
+										<label>
+								  			<input type="radio" name="hide" value="false">
+								  			<i class="fa fa-unlock"></i> Everyone
+								  		</label>
+							  		</div>
+							  	</div>
+							</div>
+
+							<div class="panel panel-default">
+							  	<div class="panel-heading">
+							    	<h3 class="panel-title">Post Category</h3>
+							  	</div>
+							  	<div class="panel-body category-box">
+							  		<label>
+							  			<input type="checkbox" name="categories" value="Carpentry"> Carpentry
+							  		</label>
+									<label>
+										<input type="checkbox" name="categories" value="Irrigation"> Irrigation
+									</label>
+									
+									<label>
+										<input type="checkbox" name="categories" value="Landscaping"> Landscaping
+									</label>
+									<label>
+										<input type="checkbox" name="categories" value="Maintenence service"> Maintenence service
+									</label>
+									<label>
+										<input type="checkbox" name="categories" value="Renovation"> Renovation
+									</label>
+									<label>
+										<input type="checkbox" name="categories" value="Snow removal"> Snow removal
+									</label>
+							  	</div>
+							</div>
+
+						   	<div class="panel panel-default">
+							  	<div class="panel-heading">
+							    	<h3 class="panel-title">Post Title</h3>
+							  	</div>
+							  	<div class="panel-body">
+							  		<input type="text" class="form-control" id="title">
+							  	</div>
+							</div>
+						   	
+
+							
+							<div class="panel panel-default">
+							  	<div class="panel-heading">
+							    	<h3 class="panel-title">Post Description</h3>
+							  	</div>
+							  	<div class="panel-body">
+							  		<textarea class="form-control" id="description"rows="8"></textarea>
+							  	</div>
+							</div>
+
+							<div style="text-align:center">
+								<button class="btn btn-lg btn-danger" onclick="savePost()">Save & Post</button>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal" id="postSuccess" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"data-backdrop="">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		    	<div class="modal-header">
+		    		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+        			<h4 class="modal-title" id="exampleModalLabel">Your post is successfully posted</h4>			
+				</div>
+		    	<div class="modal-body">
+		      		Do you want to go to check your post?
+				</div>
+		    	<div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        <a id="preview"class="btn btn-primary">View post</a>
+			    </div>
+		    </div>
+		  </div>
+		</div>
+
+
+		<div class="modal" id="postFail" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"data-backdrop="">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		    	<div class="modal-header modal-header-fail">
+		    		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        			<h4 class="modal-title" id="exampleModalLabel">Failed to post</h4>			
+				</div>
+		    	<div class="modal-body">
+		      		<p id="failMessage"></p>
+				</div>
+		    	
+		    </div>
+		  </div>
+		</div>
+		
+		<div id="completeMessage">
+			<span class="glyphicon glyphicon-ok"></span> Save Complete!
+		</div>
+		<%- include('../../../layout/footer.html') -%>
+	</body>
+	<style>
+		.modal-header{
+			background-color : aliceblue;
+		}
+		.modal-header-fail{
+		    background-color: #E0E0E0;
+    		color: red;
+		}
+
+		#map-canvas {
+			height:300px;
+		}
+		#completeMessage{
+		    position: fixed;
+		    padding: 20px;
+		    color:white;
+		    background: RGBA(34, 180, 0, 0.9);
+		    display: none;
+		    border: 1px solid #6da0ff;
+		    border-radius: 3px;
+		    -webkit-box-shadow: 1px 1px 1px 1px #ccc;
+		    -moz-box-shadow: 1px 1px 1px 1px #ccc;
+		    box-shadow: 1px 1px 1px 1px #ccc;
+		    z-index: 999;
+		}
+		.tab-content {
+			margin-top:20px;
+		    padding: 10px;
+		}
+
+		.nav-tabs {
+		    margin-bottom: 0;
+		}
+
+		.me-content{
+			min-height:600px;
+			border-radius: 10px;
+			padding:10px;
+			/*background-color: rgba(222,222,222,.3);*/
+
+		}
+		.category-box label{
+			margin-right:15px;
+			margin-bottom:7px;
+		}
+		#toDate{
+			width:160px;
+		}
+	</style>
+</html>
+
+<script>
+// init post
+function initPost(){
+    $('input[name=house]')[0].checked = true;
+	var nowTemp = new Date();
+	var today = new Date(nowTemp.getFullYear(), nowTemp.getMonth(), nowTemp.getDate(), 0, 0, 0, 0);
+	var tomorrow = new Date(today).setDate(today.getDate() + 1);
+	var oneMonth = moment().add( 1, 'months')._d;
+	
+    // $('#toDate').datetimepicker('setEndDate',oneMonth);
+    
+    var toDate = $('#toDate').datetimepicker({
+      	pickTime: false,
+      	endDate : oneMonth
+    });
+
+
+    // date time picker set default when they don't have previous Date.
+    $('#toDate').data('datetimepicker').setDate( tomorrow );
+
+
+	var option = {
+		"allowExtensions" : true,
+		"autoFormat" : true
+	}
+	var number = $("#contactableNumber").intlTelInput(option);
+
+}
+
+initPost();
+// save the post data with Ajax
+var savePost = function(){
+	var categories = [];
+	$("input[name='categories']:checked").each(function(checkbox){
+		categories.push($(this).val());
+	})
+	var formData = {
+		title : $('#title').val(),
+		description : $('#description').val(),
+		wanted : {
+			status : 'Open',
+			to : $('#toDate').data('datetimepicker').getDate(),
+		},
+		categories : categories,
+		hide : $('input[name=hide]:checked').val(),
+		house : $('input[name=house]:checked').val()
+	}
+
+	jQuery.ajax({
+	    url: "/users/me/post/save_post", 
+	    type: "POST",
+	    statusCode : {
+	    	500 : function(err){
+	    		console.log(err);
+	    	},
+	    	400 : function(err){
+	    		console.log(err);
+	    	}
+	    },
+	    data: formData, 
+	    success: function (data, textStatus, jqXHR) { 
+    		if(data.status == 'success'){
+    			$('#preview').attr('href','/h/'+data.houseId+'/p/'+data.postId);
+    			$('#title').val('');
+    			$('#description').val('');
+    			$('#postSuccess').modal('show');
+    		}else if(data.status == 'fail' && data.reason =='abusing'){
+
+    			$('#failMessage').html(data.message);
+    			$('#postFail').modal('show');
+    		}
+	        
+	    }
+	});
+}
+
+</script>

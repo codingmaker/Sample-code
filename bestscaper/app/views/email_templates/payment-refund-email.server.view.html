@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+	<div style="width:600px; margin:0 auto;">
+		<%- include('./email-header.html')-%>
+
+		<%
+			var total = 0;
+
+			items.forEach(function(item){
+				total += item.amount;
+			})
+			total = (total / 100).toFixed(2);
+		%>	
+		<p style="font-size:1.2em"><b>Your refund was processed successfully.</b></p>
+
+		<p style="font-weight:bold">Invoice Details : </p>
+		<p><span style="margin-right:2em">Refunding Date : </span><%-created%></p>
+		<p><span style="margin-right:2em">Refunding Total : </span><%='$'+total%></p>
+		<p><span style="margin-right:2em">Refunding Details</span> </p>
+		<p style="font-weight:bold"> Item Details</p>
+		<br/>
+		<% items.forEach(function(item){ %>
+		<p> 
+			Item : <%=item.description%> <br/>
+			Usage : <%=item.usage%>%  <br/>
+			Return amount : <%=item.currency.toUpperCase() +' '+ (item.amount / 100).toFixed(2)%> <br/>
+		</p>
+
+		<br/>
+		<%})%>
+
+		<p> Total: <%='$'+total%></p>
+		<br>
+		<br>
+		<p>The <%=appName%> Support Team</p>
+		<%- include('./email-footer.html')-%>
+	</div>
+</body>
+</html>

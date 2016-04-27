@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<%- include('../../layout/head.html') -%>
+		<link rel="stylesheet" href="/libs/jQuery-File-Upload-9.11.0/css/jquery.fileupload.css">
+		<script src="/libs/jQuery-File-Upload-9.11.0/js/vendor/jquery.ui.widget.js"></script>
+		<script src="/libs/jQuery-File-Upload-9.11.0/js/jquery.iframe-transport.js"></script>
+		<script src="/libs/jQuery-File-Upload-9.11.0/js/jquery.fileupload.js"></script>
+		<link rel="stylesheet" href="/libs/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+		<script src ="/libs/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+		<script src ="/libs/geocomplete/jquery.geocomplete.js"></script>
+		
+		
+		<link rel="stylesheet" href="/libs/tel-input/build/css/intlTelInput.css">
+		<style>
+		/* for the intlTelInput lib */
+		.iti-flag {background-image: url("lib/tel-input/build/img/flags.png");}
+		.text-inline-block{
+			display:inline-block;
+			margin-left:15px;
+			width :40%;
+		}
+		.remove-contact-number{
+			margin-left:10px;
+			cursor:pointer;
+			color:red;
+		}
+		.fa-info-circle{
+			color:#4E67E5;
+			cursor:pointer;
+			font-size:1.2em;
+			margin-right:5px;
+		}
+		.fa-info-circle:hover{
+			color:#73AEE5;
+		}
+		
+		/*.intl-tel-input{display:inline-block;}*/
+
+		</style>
+		<script src="/libs/tel-input/build/js/intlTelInput.min.js"></script>
+		<script src="/libs/tel-input/build/js/utils.js"></script>
+
+
+	</head>
+	<body>
+		<%- include('../../layout/header.html') -%>
+
+		<div class="container" style="margin-top:30px">
+			<div class="row">
+				<div class="col-xs-2">
+					<%- include('./sidebar.html') -%>
+				</div>
+				<div class="col-xs-9 col-xs-offset-1">
+					<!-- tab nav -->
+					<ul class="row" id="setting-nav" role="tablist">
+						<li class="col-xs-4 tab-menu" role="presentation" ><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab">Basic</a></li>
+						<li class="col-xs-4 tab-menu advanced" role="presentation" ><a href="#advanced" aria-controls="advanced" role="tab" data-toggle="tab">Advanced</a></li>
+						<li class="col-xs-4 tab-menu" role="presentation" ><a href="#seo" aria-controls="seo" role="tab" data-toggle="tab">Search engine</a></li>
+					</ul>
+					<!-- Tab panes -->
+					<div class="tab-content" style="margin-top:20px;">
+					    <div role="tabpanel" class="tab-pane active" id="basic">
+					    	<!-- for the company logo -->
+					    	<div class="panel panel-default">
+							  	<div class="panel-heading">
+							  		<i class="fa fa-info-circle" data-toggle="popover"
+							  		data-placement="top" data-content="Ideal logo size is 300 x 200"></i>
+							  		Company Logo
+							  	</div>
+						  		<div class="panel-body">
+						  			<div class="row">
+						  				<div class="col-xs-6 col-xs-offset-1">
+						    				<% if(company.companyLogo.url){ %>
+						    					<img src="<%-company.companyLogo.url%>" class="img-responsive img-thumbnail" id="companyLogo">
+						    				<% }else{%>
+												<img src="/images/noimage.png" class="img-responsive img-thumbnail" id="companyLogo">
+						    				<% }%>
+						    			</div>
+						    			<div class="col-xs-4 col-xs-offset-1">
+											<span class="btn btn-success fileinput-button">
+										        <i class="glyphicon glyphicon-plus"></i>
+										        <span>Select Image</span>
+										        <!-- The file input field used as target for the file upload widget -->
+										        <input id="fileupload" type="file" name="files">
+										    </span>
+								    	</div>
+								    </div>
+						  		</div>	 
+							</div>
+							<div class="panel panel-default">
+							  	<div class="panel-heading">
+							  		Required
+							  	</div>
+						  		<div class="panel-body">
+						    		<div class="form-group">
+									    <label for="companyName">Company Name</label><span id="companyNameHint" style="color:red; margin-left:10px;"></span>
+									    <input type="text" class="form-control" id="companyName">
+									</div>
+									<div class="form-group">
+										<i class="fa fa-info-circle" data-toggle="popover"
+							  		data-placement="top" data-content="If you have multiple contact number, click the add button"></i>
+									    <label for="companyContactNumber">Company Contact Number</label>
+									    <span style="cursor:pointer; margin-left:10px;color:#979793" id="addContactNumberButton"><i class="fa fa-plus-square"></i> Add</span>
+									    <div id="contactNumbersArea">
+									    	<% company.companyContactNumber.forEach(function(contactNumber){ %>
+									    	<div style="margin-bottom:10px;">
+									    		<input type="text" class="companyNumber form-control number"  value="<%-contactNumber.number%>">
+									    		<input type="text" class="form-control text-inline-block note"placeholder = "Branch of city or name of phone owner"
+									    		value="<%-contactNumber.note%>">
+									    		<i class="fa fa-times remove-contact-number"></i>
+									    	</div>
+									    	<% }) %>
+									    </div>
+									</div>
+									<div class="form-group">
+									    <label for="companyEmail">Company Email</label>
+									    <input type="text" class="form-control" id="companyEmail">
+									</div>
+						  		</div>	 
+							</div>
+					    
+							<div class="panel panel-default">
+							  	<div class="panel-heading">
+							  		<i class="fa fa-info-circle" data-toggle="popover"
+							  		data-placement="top" data-content="Please make sure you click the auto completed address and drag the marker over your company location"></i>
+							  		Address & Map setting
+							  	</div>
+						  		<div class="panel-body">
+						    		<div class="form-group">
+									    <label for="exampleInputEmail1">* Company Address</label>
+									    <input type="text" class="form-control" id="companyAddress" placeholder="Street, city, State&Province, Country">
+									</div>
+									<div class="form-group">
+									    <label for="exampleInputEmail1">Company Address2</label>
+									    <input type="text" class="form-control" id="companyAddress2" placeholder="ex)Unit Number, Apt number">
+									</div>
+									<div id="map-canvas"></div>
+
+						  		</div>	 
+							</div>
+
+							<div style="text-align:center">
+								<button class="btn btn-lg btn-danger" onclick="Basic.updateBasicSetting()">Save</button>
+							</div>
+					    </div>
+
+					    <!-- 
+	****************************************advanced setting.****************************************
+					     -->
+
+
+					    <div role="tabpanel" class="tab-pane" id="advanced">
+							
+							<!-- Covered Area for search  -->
+							
+
+							<!-- Covered Area for search  -->
+							<div class="panel panel-default">
+							  	<div class="panel-heading">
+							  		<i class="fa fa-info-circle" data-toggle="popover"
+							  		data-placement="top" data-content="Please type the cities you intend to work within your business area"></i>
+							  		Covered Area
+							  	</div>
+						  		<div class="panel-body">
+						    		<div class="form-group">
+									    <label for="coveredArea">Covered City</label>
+									    <input type="text" class="form-control" id="coveredArea" placeholder=" Please type the cities where your company's business areas.">
+									    <p id="advancedMessage" style="display:none; color:red; padding:10px;"></p>
+									    <hr/>
+										<div id="displayCoveredArea">
+											
+										</div>
+
+									</div>
+						  		</div>	 
+							</div>
+							<div class="panel panel-default">
+							  	<div class="panel-heading">
+							  		<i class="fa fa-info-circle" data-toggle="popover"
+							  		data-placement="top" data-content="Select which categories you wish to receive email notifications about when a new post has been posted within your business area."></i>
+							  		Notification Categories
+							  	</div>
+						  		<div class="panel-body">
+
+						    		<div class="form-group category-box">
+										<label>
+								  			<input type="checkbox" name="categories" value="Carpentry"> Carpentry
+								  		</label>
+										<label>
+											<input type="checkbox" name="categories" value="Irrigation"> Irrigation
+										</label>
+										
+										<label>
+											<input type="checkbox" name="categories" value="Landscaping"> Landscaping
+										</label>
+										<label>
+											<input type="checkbox" name="categories" value="Maintenence service"> Maintenence service
+										</label>
+										<label>
+											<input type="checkbox" name="categories" value="Renovation"> Renovation
+										</label>
+										<label>
+											<input type="checkbox" name="categories" value="Snow removal"> Snow removal
+										</label>
+
+									</div>
+						  		</div>	 
+							</div>
+							<!-- service & description setting -->
+							<div class="panel panel-default">
+							  	<div class="panel-heading">
+							  		<i class="fa fa-info-circle" data-toggle="popover"
+							  		data-placement="top" data-content="Please add your services and description. ex)Maintenece service, snow removal"></i>
+							  		Service & Description
+							  	</div>
+						  		<div class="panel-body">
+						    		<div class="form-group ">
+									    <label for="services">Services</label>
+									    <form class="form-inline" id="serviceForm">
+											<input type="text" id="services" class="form-control" placeholder="Mowing and Trimming">
+											<button class="btn btn-default">Add</button>
+										</form>
+									</div>
+									<hr />
+									<ul id="displayServices" class="row">
+										
+									</ul>
+									<hr />
+
+						    		<div class="form-group">
+									    <label for="description">Description</label>
+									    <textarea class="form-control" rows="8" id="description"><%-company.description%></textarea>
+									</div>
+									<hr/>
+									
+						  		</div>	 
+							</div>
+							
+							<div style="text-align:center">
+								<button class="btn btn-lg btn-danger" onclick="Advanced.updateAdvancedSetting()">Save</button>
+							</div>
+					    </div>
+
+	<!--****************************************Marketing setting.**************************************** -->
+
+					    <div role="tabpanel" class="tab-pane" id="seo">
+					    	<div class="panel panel-info">
+							  	<div class="panel-heading">
+							  		Search engine guide.
+							  	</div>
+						  		<div class="panel-body">
+						  			<img src="/images/guide/seo.jpg">
+						  			<p style="line-height:1.2">
+						  				<b style="color:#3092C9">Keywords</b> are used when clients search on the google, yahoo, etc.
+						  				<br/>
+						  				Your site will have chance to be shown <b style="color:#3092C9">depending on your keywords.</b>
+						  				<br/>
+						  				We recommand you to have <b>key category</b> on your title <span style="color:#3092C9">(landscape, landscaping, lawn care, etc)</span>
+						  			</p>
+						  		</div>	 
+							</div>
+
+
+						    <div class="panel panel-default">
+							  	<div class="panel-heading">
+							  		Landscaper page
+							  	</div>
+						  		<div class="panel-body">
+						  			<div class="form-group ">
+						  				<i class="fa fa-info-circle" data-toggle="popover"
+							  		data-placement="top" data-content="Tip. title should have first priority category and location. <br/> <b>ex) Bestscaper :: kelowna Landscaping</b>"></i>
+									    <label for="title">Title</label>
+									    <input type="text" id ="title" class="form-control">
+									</div>
+						    		<div class="form-group ">
+									    <label for="id">Company page address</label>
+									    <form class="form-inline">
+									    	www.bestscaper/c/
+											<input type="text" id="id"class="form-control">
+											<span id="idMessage" style="color:red"></span>
+										</form>
+									</div>
+									
+						  		</div>	 
+							</div>
+					    	
+							<div class="panel panel-default">
+							  	<div class="panel-heading">
+							  		Setting a Meta tags
+							  	</div>
+						  		<div class="panel-body">
+						  			
+						    		<div class="form-group ">
+									    <label for="keyword">Keywords</label>
+								    	<form class="form-inline" id="seoKeywords">
+											<input type="text" id="keyword" class="form-control" placeholder="Keyword">
+											<button class="btn btn-default">Add</button>
+											<div id="displayTags" style="margin:20px 0;">
+
+											</div>
+										</form>
+									</div>
+									<hr/>
+									<div class="form-group ">
+										<i class="fa fa-info-circle" data-toggle="popover"
+							  		data-placement="top" data-content="Please describe your business in 150 characters"></i>
+										<label for="seoDescription">Description</label>
+									    <textarea class="form-control" id="seoDescription"><%-company.seo.description%></textarea>
+									    <div style="text-align:right;">
+									    	<span id="descriptionCount">
+									    		<%-company.seo.description.length%>
+									    	</span> / 150
+									    </div>
+									</div>
+									
+						  		</div>	 
+							</div>
+							<div style="text-align:center">
+								<button class="btn btn-lg btn-danger" onclick="Marketing.updateMarketingSetting()">Save</button>
+							</div>
+					    </div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<div id="completeMessage">
+			<span class="glyphicon glyphicon-ok"></span> Save Complete!
+		</div>
+		<%- include('../../layout/footer.html') -%>
+	</body>	
+
+	<script>
+
+		
+		var CompanyObj = {
+			_id : <%-JSON.stringify(company._id)%>,
+			id : <%-JSON.stringify(company.id)%>,
+			companyName : <%-JSON.stringify(company.companyName)%>,
+			companyAddress :<%-JSON.stringify(company.companyAddress)%>,
+			location :{
+				coordinates : <%-JSON.stringify(company.location.coordinates)%>
+			},
+			companyEmail : <%-JSON.stringify(company.companyEmail)%>,
+			companyContactNumber : <%-JSON.stringify(company.companyContactNumber)%>,
+			coveredAreas : <%-JSON.stringify(company.coveredAreas)%>,
+			services : <%-JSON.stringify(company.services)%>,
+			categories : <%-JSON.stringify(company.categories)%>,
+			seo : <%-JSON.stringify(company.seo)%>
+		}
+		
+		
+		
+		</script>
+		<script src ="/scripts/my_company/basic.js"></script>
+		<script src ="/scripts/my_company/advanced.js"></script>
+		<script src ="/scripts/my_company/marketing.js"></script>
+
+
+	<script>
+	
+	
+
+	
+		
+		
+
+		/*
+		etc setting for performence.
+		*/
+
+		// for better performence user can navigate with hash tags
+		$(function(){
+		  var hash = window.location.hash;
+		  console.log(hash);
+		  hash && $('#setting-nav a[href="' + hash + '"]').tab('show');
+		  $('#setting-nav a').click(function (e) {
+		    $(this).tab('show');
+		    window.location.hash = this.hash;
+		    // $('html,body').scrollTop(scrollmem);
+		  });
+		});
+		// when setting tab is shown init map and address
+		$('a[data-toggle="tab"][href= "#basic"]').on('shown.bs.tab', function (e) {
+		  	Basic.initBasicSetting();
+		})
+		$('a[data-toggle="tab"][href= "#advanced"]').on('shown.bs.tab', function (e) {
+		  	Advanced.initAdvancedSetting();
+		})
+
+
+		function saveComplete(){
+		    var documentWidth = $(document).width() / 2;
+		    var documentHeight = $(window).height() / 2;
+
+		    var boxWidth = $('#completeMessage').width();
+		    var boxHeight = $('#completeMessage').height();
+
+		    var messageBoxLeft = documentWidth - (boxWidth / 2)
+		    var messageBoxTop = documentHeight - (boxHeight / 2);
+		    $('#completeMessage').css('z-index', 1061);
+		    $('#completeMessage').css('left', messageBoxLeft);
+		    $('#completeMessage').css('top', messageBoxTop);
+
+		    $('#completeMessage').delay(300).show();
+		    $('#completeMessage').delay(600).fadeOut('slow');
+		}
+		
+	</script>
+	<style>
+		.remove-btn{
+			margin-left:1em;
+			color:red;
+			cursor:pointer;
+			opacity: 0;
+			-webkit-transition: opacity 0.2s;
+			transition: opacity 0.2s;
+		}
+		.category-box{
+			
+		}
+		#displayServices{
+			margin: 20px 0;
+			padding:0 40px;
+		}
+		#displayServices li{
+			list-style-type:square;
+			padding:0.7em;
+		}
+		#displayServices li:hover>.remove-btn{
+			opacity: 1;
+		}
+
+		.coveredArea{
+			display: inline-block;
+			padding:10px 15px;
+			background-color:#CCCEC4;
+			color:white;
+			margin:5px 10px;
+		}
+
+		.coveredArea:hover>.remove-btn{
+			opacity: 1;
+		}
+
+
+		.keyword{
+			display: inline-block;
+			padding:10px 15px;
+			background-color:#CCCEC4;
+			color:white;
+			margin:5px 10px;
+			border-radius: 5px;
+		}
+		.keyword:hover>.remove-btn{
+			opacity : 1;
+		}
+		#completeMessage{
+		    position: fixed;
+		    padding: 20px;
+		    color:white;
+		    background: RGBA(34, 180, 0, 0.9);
+		    display: none;
+		    border: 1px solid #6da0ff;
+		    border-radius: 3px;
+		    -webkit-box-shadow: 1px 1px 1px 1px #ccc;
+		    -moz-box-shadow: 1px 1px 1px 1px #ccc;
+		    box-shadow: 1px 1px 1px 1px #ccc;
+		    z-index: 999;
+		}
+		.btn {
+		    border: 0;
+		    border-radius: 300px;
+		    text-transform: uppercase;
+		    font-family: 'Open Sans','Helvetica Neue',Arial,sans-serif;
+		    font-weight: 700;
+		}
+		.tab-menu a{
+			color:#4A494D;
+			font-size:1.2em;
+		}
+		.tab-menu.active a{
+			color:#3A55FC;
+		}
+		#setting-nav{
+			border-radius: 5px;
+			padding:20px;
+			border:1px solid #ccc;
+			text-align:center;
+		}
+		#setting-nav .advanced{
+			border-left:1px solid #ccc;
+			border-right:1px solid #ccc;
+		}
+		#map-canvas{
+			height:400px;
+		}
+		.form-group label{
+			margin-bottom:10px;
+		}
+		.category-box label{
+			margin-right:15px;
+			margin-bottom:7px;
+		}
+		
+	</style>
+</html>

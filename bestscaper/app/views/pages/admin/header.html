@@ -1,0 +1,27 @@
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Bestscaper</a>
+    </div>
+    <div id="navbar" class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li id="dashboard"><a href="/admin/p/dashboard">Dashboard</a></li>
+        <li id="users"><a href="/admin/p/users">Users</a></li>
+        <li id="companies"><a href="/admin/p/companies">Companies</a></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</nav>
+
+<script>
+  var splittedPath = location.pathname.split('/');
+  var nowPath = splittedPath[splittedPath.indexOf('p') + 1];
+  console.log(nowPath);
+  $('#'+nowPath).addClass('active')
+</script>

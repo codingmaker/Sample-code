@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+	<div style="width:600px; margin:0 auto;">
+	<%- include('./email-header.html')-%>
+		<p style="font-weight:bold">A new post has just been written inside your business area.</p>
+		<br/>
+		<br/>
+		<p>
+			<b>Title </b> : <%-post.title%>
+		</p>
+		<p>
+			<%-post.description%>
+		</p>
+		<br/>
+		Click <a href="http://www.bestscaper.com/h/<%-post.house%>/p/<%-post._id%>">here</a> to check this <a href="http://www.bestscaper.com/h/<%-post.house%>/p/<%-post._id%>">post</a>
+		</p>
+		<br>
+		<br>
+		<p>Thank you for  using <%=appName%></p>
+		<p>The <%=appName%> Support Team</p>
+	<%- include('./email-footer.html')-%>
+	</div>
+</body>
+</html>

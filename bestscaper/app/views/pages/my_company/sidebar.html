@@ -1,0 +1,126 @@
+
+<div id='sidebar-nav'>
+	<ul>
+    <li id="company"><a href='/c/<%=company.id%>' target="_blank"><span>
+    <i class="fa fa-home"></i> Home</span></a></li>
+	  <li id="dashboard"><a href='/companies/my_company/dashboard'><span>Dashboard</span></a></li>
+	  <li id="album"><a href='/companies/my_company/album/select_album'><span>Album</span></a></li>
+	  <li id="setting"><a href='/companies/my_company/setting#basic'><span>Setting</span></a></li>
+	  <li id="offers"><a href='/companies/my_company/offers'><span>Offers</span></a></li>
+	  <li id="subscribers" class='last'><a href='/companies/my_company/subscribers'><span>Subscribers</span></a></li>
+	</ul>
+</div>
+
+<script>
+	var splittedPath = location.pathname.split('/');
+	var nowPath = splittedPath[splittedPath.indexOf('my_company') + 1];
+	$('#'+nowPath).addClass('active')
+</script>
+<style>
+#navigation{
+  margin-bottom:20px;
+}
+/* CSS for Vertical Menu */
+#sidebar-nav {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+#sidebar-nav ul,
+#sidebar-nav li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#sidebar-nav ul {
+  position: relative;
+  z-index: 597;
+}
+#sidebar-nav ul li {
+  min-height: 1px;
+  line-height: 1em;
+}
+#sidebar-nav a {
+  display: block;
+  text-decoration: none;
+}
+/* Custom CSS Styles */
+#sidebar-nav {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: bold;
+}
+#sidebar-nav ul {
+  background-color: #F1F1F1;
+  background-image: -webkit-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: -moz-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: -o-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: linear-gradient(#ffffff, #f5f5f5);
+  border: 1px solid #CCC;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+}
+#sidebar-nav li {
+  border-bottom: 1px solid #CCC;
+  -moz-box-shadow: 0 1px 0 white;
+  -webkit-box-shadow: 0 1px 0 white;
+  box-shadow: 0 1px 0 white;
+  padding: 1px;
+}
+#sidebar-nav li:last-child,
+#sidebar-nav li.last {
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-bottom: 0 none;
+}
+#sidebar-nav li.active {
+  -moz-box-shadow: 1px 2px 0 -1px rgba(0, 0, 0, 0.25);
+  -webkit-box-shadow: 1px 2px 0 -1px rgba(0, 0, 0, 0.25);
+  box-shadow: 1px 2px 0 -1px rgba(0, 0, 0, 0.25);
+  background-image:-webkit-linear-gradient(#8BD571, #4FC94A);
+  background-image:-o-linear-gradient(#8BD571, #4FC94A);
+  background-image:linear-gradient(#8BD571, #4FC94A);
+  background-image:-moz-linear-gradient(#8BD571, #4FC94A);
+  position: relative;
+  width:calc(100% + 10px);
+  left: -8px;
+}
+#sidebar-nav li.active a {
+  border: 2px dashed #98cee1;
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  position: relative;
+  color: #FFF;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+}
+#sidebar-nav li.active:before,
+#sidebar-nav li.active:after {
+  content: '';
+}
+#sidebar-nav li.active:before {
+  z-index: 1;
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  border-style: solid;
+  border-width: 0 8px 5px 0;
+  border-color: transparent #119224 transparent transparent
+
+}
+
+#sidebar-nav a {
+  border: 1px solid transparent;
+  color: #444;
+  height: 42px;
+  line-height: 40px;
+  padding: 0 12px;
+  text-align: right;
+  text-overflow: ellipsis;
+}
+
+</style>

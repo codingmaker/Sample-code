@@ -1,0 +1,383 @@
+<!doctype html>
+<html>
+	<head>
+
+		<% 
+			var avgRate = 0;
+			var sum = 0;
+			if(company.reviews.length > 0 ){
+				company.reviews.forEach(function(review){
+					sum = sum + review.rating;
+				})
+				avgRate = sum / company.reviews.length;
+
+			}
+		%>
+		<%- include('../../layout/head.html') -%>
+		
+
+		<style>
+			#map-canvas{
+				width:100%;
+				height:300px;
+			}
+
+			h2,h3{
+				font-size:1.3em;
+				padding-top:15px;
+				padding-bottom:15px;
+
+			}
+			h4,h5{
+				font-size:1.2em;
+				padding-top:15px;
+				padding-bottom:15px;
+			}
+
+			.tab-content {
+			    border-left: 1px solid #ddd;
+			    border-right: 1px solid #ddd;
+			    border-bottom: 1px solid #ddd;
+				min-height: 700px;
+			    padding: 10px;
+			}
+
+			.nav-tabs {
+			    margin-bottom: 0;
+			}
+
+			.blueimp-gallery > .description {
+			  position: absolute;
+			  top: 30px;
+			  left: 15px;
+			  color: #fff;
+			  display: none;
+			}
+			.blueimp-gallery-controls > .description {
+			  display: block;
+			}
+			li.service{
+				list-style: square;
+			}
+			.albums{
+				display:block;
+				cursor:pointer;
+			}
+			.albums img {
+				opacity: 0.6;
+				-webkit-transition: all .4s ease-in-out;
+		        -o-transition: all .4s ease-in-out;
+		        transition: all .4s ease-in-out;
+			}
+			.albums:hover img{
+				opacity: 1;
+			}
+			.nav-tabs>li>a {
+			    margin-right: 2px;
+			    line-height: 1.42857143;
+			    border: 1px solid transparent;
+			    border-radius: 4px 4px 0 0;
+			    color: grey;
+			}
+			.nav-tabs>li.active>a {
+			    
+			    color: #000000;
+			}
+
+			.well{
+				padding:11px;
+			}
+		</style>
+		<script src="https://apis.google.com/js/platform.js" async defer></script>
+		<!-- raty -->
+		<link rel="stylesheet" href="/libs/raty/lib/jquery.raty.css">
+		<script src="/libs/raty/lib/jquery.raty.js"></script>
+		<link rel="stylesheet" href="/libs/Gallery-2.16.0/css/blueimp-gallery.min.css">
+		<script src="/libs/Gallery-2.16.0/js/blueimp-gallery.min.js"></script>
+		<script src="/libs/Gallery-2.16.0/js/jquery.blueimp-gallery.min.js"></script>
+		<link rel="stylesheet" href="/libs/tel-input/build/css/intlTelInput.css">
+		<style>
+		/* for the intlTelInput lib */
+		.iti-flag {background-image: url("lib/tel-input/build/img/flags.png");}
+		.intl-tel-input{display:block;}
+		</style>
+		<script src="/libs/tel-input/build/js/intlTelInput.min.js"></script>
+		<script src="/libs/tel-input/build/js/utils.js"></script>
+		<% if(company.valid){ %>
+		<script type="application/ld+json">
+	    <%  var reviewLength = company.reviews.length;
+	    	var coveredAreaLength = company.coveredAreas.length;
+	    %>		  	
+
+		{
+		  "@context" : "http://schema.org",
+		  "@type" : "LocalBusiness",
+		  "name" : "<%-company.companyName%>",
+		  "description" : "<%-company.description%>",
+		  "telephone" : "<%-company.companyContactNumber[0].number%>",
+		  "email" : "<%-company.companyEmail%>",
+		  "address" : {
+		      "@type" : "PostalAddress",
+		      "streetAddress" : "<%-company.companyAddress.streetNumber%> <%-company.companyAddress.street%>",
+		      "addressLocality" : "<%-company.companyAddress.city%>",
+		      "addressRegion" : "<%-company.companyAddress.state%>",
+		      "postalCode" : "<%-company.companyAddress.postalCode%>" 
+		  },
+		  "url" : "http://www.bestscaper.com/c/<%-company.id%>",
+		  "aggregateRating": {
+		    "@type": "AggregateRating",
+		    "ratingValue": "<%= avgRate%>",
+		    "reviewCount": "<%=company.reviews.length%>",
+		    "bestRating": "5",
+		    "worstRating": "0"
+		  },
+		  "logo" : "<%-company.companyLogo.url%>",
+		  "geo": {
+		    "@type": "GeoCoordinates",
+		    "latitude": "<%=company.location.coordinates[1]%>",
+		    "longitude": "<%=company.location.coordinates[0]%>"
+		  }
+
+
+		  <% if(reviewLength > 0){ %>
+			    ,"review": [
+				  	<% for(var i = 0; reviewLength > i;  i++){ %>
+					    {
+					      "@type": "Review",
+					      "author": "<%-company.reviews[i].user.firstName +' '+company.reviews[i].user.lastName%>",
+					      "datePublished": "<%-moment(company.reviews[i].createdAt).format('YYYY-MM-DD HH:mma' )%>",
+					      "description": "<%-company.reviews[i].content%>",
+					      "reviewRating": {
+					        "@type": "Rating",
+					        "bestRating": "5",
+					        "ratingValue": "<%-company.reviews[i].rating%>",
+					        "worstRating": "0"
+					      }
+					    }<% if(i != (reviewLength -1) ){ %>
+					    	,
+				    	<%}%>
+				    <% } %>
+		    	]
+	    	<%}%>
+		}
+		</script>
+		
+		<meta property="fb:app_id" content="1525465817702104">
+		<meta property="og:site_name" content="Bestscaper">
+		<meta property="og:url" content="http://www.bestscaper.com/c/<%-company.id%>">
+		<meta property="og:title" content="<%-title%>">
+		<meta property="og:description" content="<%-description%>">
+		<meta property="og:image" content="<%-company.companyLogo.url%>" >
+		
+
+		<meta name="twitter:url" content="http://www.bestscaper.com/c/<%-company.id%>">
+		<meta name="twitter:description" content="<%-description%>">
+		<meta name="twitter:card" content="summary">
+		<meta name="twitter:title" content="<%-title%>">
+		<meta name="twitter:site" content="@Bestscaper">
+		<%}%>
+	</head>
+	<body>
+		<%- include('../../layout/header.html') -%>
+		<%- include('header.html') -%>
+		<div class="row" style="min-height:400px;">
+			<%- include('sidebar.html') -%>
+			<div class="col-xs-9" style="padding:10px;">
+				<%if(company.valid){%>
+					<!-- Nav tabs -->
+					<ul class="nav nav-tabs" role="tablist">
+					    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
+					    <li role="presentation"><a href="#albums" aria-controls="albums" role="tab" data-toggle="tab">Albums</a></li>
+					</ul>
+
+					  <!-- Tab panes -->
+					<div class="tab-content">
+					    
+						<!-- home tab -->
+					    <div role="tabpanel" class="tab-pane active" id="home">
+					    	<h3><i class="fa fa-bars"></i> Business Details</h3>
+					    	<div style="background:rgba(0,0,0,0.05);">
+
+					    		<!-- description -->
+								<div class="row" style="border-top:1px solid #ccc; padding:15px;">
+						    		
+						    		<div class="col-xs-3" style="font-size:1.2em; color:#68686C">
+							    		<i class="fa fa-sticky-note" style="font-size:1.2em;"></i> Description
+						    		</div>
+									<div class="col-xs-9" style="font-size:1.1em;">
+					    				<pre id="descriptionArea" style="margin-left:25px; background-color:transparent; line-height:1; overflow: inherit;"><%-company.description%></pre>
+									</div>
+								</div>
+					    		<!-- services -->
+						    	<div class="row" style="border-top:1px solid #ccc; padding:15px;">
+						    		<div class="col-xs-3" style="font-size:1.2em; color:#68686C">
+							    		<i class="fa fa-wrench" style="font-size:1.2em"></i> Product and Services
+						    		</div>
+									<div class="col-xs-9" style="font-size:1.1em;">
+					    				<ul class="row" type="square" style="line-height:1.3; font-size:1em; margin-left:40px;" itemscope itemtype="http://schema.org/Service">
+										<% company.services.forEach(function(service){ %>
+											<li class="col-xs-6 service" itemprop = "serviceType" ><%-service%></li>
+										<% }) %>
+										</ul>
+									</div>
+								</div>
+								
+								<!-- business areas -->
+						    	<div class="row" style="border-top:1px solid #ccc; border-bottom:1px solid #ccc; padding:15px;">
+
+									<div class="col-xs-3" style="font-size:1.2em; color:#68686C">
+							    		<i class="fa fa-map-marker" style="font-size:1.4em; color:#E58D69"></i>  Business areas
+						    		</div>
+									<div class="col-xs-9" style="font-size:1.1em; line-height:1.2">
+					    				<% company.coveredAreas.forEach(function(area){ %>
+											<a href="/?country=<%-area.country%>&state=<%-area.state%>&city=<%-area.city%>"><%-area.city%>, <%-area.state%></a> <br/>
+										<%})%>
+									</div>		
+								</div>
+
+
+
+							</div>
+					    	<hr/>
+					    	<h3><i class="fa fa-commenting-o"></i> Reviews (<%-company.reviews.length%>)</h3>
+							<div>
+								<% company.reviews.forEach(function(review){ %>
+								<div class="well"> 
+									<div class="row">
+										<div class="col-xs-2" style="padding:1em;">
+											<% if(review.user.profilePicture.url){ %>
+												<img src="<%-review.user.profilePicture.url%>" class="img-responsive img-circle" style="height:140px; width:140px; display: block;margin-left: auto;margin-right: auto">
+											<%}else if(review.user.provider =='facebook'){ %>
+												<img src="<%-review.user.providerData.picture.data.url%>" class="img-responsive img-circle" style="height:140px; width:140px; display: block;margin-left: auto;margin-right: auto">
+											<%}else if(review.user.provider == 'google'){ %>
+												<img src="<%-review.user.providerData.picture%>" class="img-responsive img-circle" style="height:140px; width:140px; display: block;margin-left: auto;margin-right: auto">
+											<%}else{ %>
+												<img src="/images/person.png" class="img-responsive img-circle" style="height:100px; display: block;margin-left: auto;margin-right: auto">
+											<%}%>
+
+											<p style="text-align:center;"><%-review.user.firstName + ' ' + review.user.lastName %></p>
+										</div>
+										<div class="col-xs-10" style="position:relative;">
+											
+											<span class="review-rating" data-score="<%=review.rating%>"></span>
+											
+											<span>
+											Reviewed post: <a href="/h/<%-review.post.house%>/p/<%-review.post._id%>" style="font-weight:bold;font-size:0.9em"><%-review.post.title%></a> 
+											</span>
+											
+
+											<p style="margin-top:1.5em; color:#6B6B6B;"><%-review.content%></p>
+											<span style="color:#767574; font-size:0.8em; position:absolute; bottom:0; right:0;"><%-moment(review.createdAt).format('YYYY-MM-DD HH:mma' )%></span>
+										</div>
+										
+
+									</div>
+								</div>
+					    		<%})%>
+				    		</div>
+							
+					    </div>
+
+						<!-- album tab -->
+					    <div role="tabpanel" class="tab-pane" id="albums">
+					    	<h5>Album list</h5>
+					    	<div id="links">
+					    		<% 
+					    			var albumCount = company.albums.length; 
+					    		%>
+								<% for(var i=0; i < albumCount; i++) { %>
+						    		<% company.albums[i].photos.forEach(function(photo,index){ %>
+						    			<% if(index == 0) {%>
+					    			
+									    <a href="<%-photo.url%>" data-gallery="#blueimp-gallery-<%-company.albums[i]._id%>" data-description="<%-company.albums[i].description%>" class="albums">
+									        <div class="row" style="margin-bottom:20px;">
+									        	<div class="col-xs-3">
+										        	<img src="<%-photo.url%>" class="img-responsive" style="height:200px;">
+										        </div>
+										        <div class="col-xs-9" style="padding-left: 20px; color:black">
+										    		<p style="font-size:1.2em; margin-bottom:15px;"><%-company.albums[i].title%></p>
+										    		<pre><%-company.albums[i].description%></pre>
+										    	</div>
+									    	</div>
+									    </a>
+								    
+									    <% }else{ %>
+										<a href="<%-photo.url%>"data-gallery="#blueimp-gallery-<%-company.albums[i]._id%>"
+									        data-description="<%-company.albums[i].description%>" class="col-xs-3 hide">
+									        <img src="<%-photo.url%>" class="img-responsive">
+									    </a>
+									    <% } %>
+								    <% })%>
+								<% } %>
+							</div>
+
+					    </div>
+
+					</div>
+				<% }else{ %>
+					<p style="font-size:2.5em"><%-company.description%></p>
+
+				<% } %>
+			</div>
+		</div>
+
+		<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+		    <div class="slides"></div>
+		    <h3 class="title"></h3>
+		    <p class="description"></p>
+		    <a class="prev">‹</a>
+		    <a class="next">›</a>
+		    <a class="close">×</a>
+		    <a class="play-pause"></a>
+		    <ol class="indicator"></ol>
+		</div>
+		<%- include('../../layout/footer.html') -%>
+		
+	</body>
+	<script>
+		// for better performence user can navigate with hash tags
+		$(function(){
+		  var hash = window.location.hash;
+		  hash && $('ul.nav a[href="' + hash + '"]').tab('show');
+		  $('.nav-tabs a').click(function (e) {
+		  	e.preventDefault();
+		    $(this).tab('show');
+
+		    window.location.hash = this.hash;
+		    window.scrollTo(0,0);
+		    // $('html,body').scrollTop(scrollmem);
+		  });
+
+		  $('.review-rating').raty({
+				path: '/libs/raty/lib/images',
+				score : function(){
+					return $(this).attr('data-score');
+				},
+				half : true,
+				readOnly : true
+			})
+			$('#links').on('click',function (event) {
+			    event = event || window.event;
+			    var target = event.target || event.srcElement,
+			        link = target.src ? target.parentNode : target,
+			        options = {
+			        	index: link,
+			        	event: event,
+			        	hidePageScrollbars: false
+			        },
+			        links = this.getElementsByTagName('a');
+			    blueimp.Gallery(links, options);
+			});
+
+		});
+
+		// raty should be here to access avgRate Property.
+		$('#companyLating').raty({
+			path: '/libs/raty/lib/images',
+			score : <%= avgRate%>,
+			half : true,
+			readOnly : true
+		})
+	</script>
+
+</html>

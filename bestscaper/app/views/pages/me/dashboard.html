@@ -1,0 +1,120 @@
+<html>
+	<head>
+		<%- include('../../layout/head.html') -%>
+		<script src ="/libs/moment.min.js"></script>
+		<link rel="stylesheet" href="/libs/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+		<script src ="/libs/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+		<style>
+		.check-company{
+			margin-left:.2em;
+			margin-right:.2em;
+		}
+		.check-post{
+			margin-left:.2em;
+			margin-right:.2em;
+		}
+		.log{
+			padding:1.2em;
+			border-radius: 10px;
+			margin-bottom:10px;
+		}
+		.log-date{
+			font-size:.8em; 
+			position:absolute; 
+			bottom:5px; 
+			right:5px; 
+			color:#7D7D7D;
+		}
+		.log-remove{
+			position:absolute; 
+			top:3px; 
+			right:3px; 
+			color:red;
+			cursor:pointer;
+			display:none;
+		}
+		.log-wrapper{
+			position: relative;
+		}
+		.log-wrapper:hover>.log-remove{
+			display:block;
+
+		}
+		</style>
+	</head>
+	<body>
+		<%- include('../../layout/header.html') -%>
+		
+		<div class="container space-top-20">
+			<div class="row">
+				<%- include('sidebar.html')%>
+				<div class="col-xs-10" style="padding-left:40px;">
+					
+					
+					
+
+					<div class="panel panel-default">
+					  <div class="panel-heading">Notification (<span id="logCount"><%=user.logs.length%></span>)</div>
+					  <div class="panel-body">
+					    <% if(user.logs.length > 0) { %>
+						<% user.logs.forEach(function(log){%>
+							<div class="log-wrapper">
+								<i class="fa fa-times log-remove" data-logid = "<%-log._id%>"></i>
+								<%-log.message%>
+								<div class="log-date">
+									<%=moment(log.created).format('YYYY-MM-DD HH:mma')%>
+								</div>
+							</div>
+						<%})%>
+						<%}else{%>
+							<p style="font-size:1.2em">You have no new notifications.</p>
+						<%}%>
+					  </div>
+					</div>
+
+					<div class="panel panel-default">
+					  <div class="panel-heading">Subscriptions (<%=subscriptions.length%>)</div>
+					  <div class="panel-body">
+					    
+					    <% subscriptions.forEach(function(company){ %>
+							<p>
+								<a href="/c/<%-company.id%>">
+									<%-company.companyName%>
+								</a>
+							</p>
+					    <% })%>
+					  </div>
+					</div>
+				</div>	
+			</div>
+		</div>	
+		<script>
+			$('.log-remove').on('click',function(){
+				
+				var parentDom = $(this).parent();
+				var formData = {
+					'logId' : $(this).data('logid')	
+				}
+				jQuery.ajax({
+				    url: "/users/log/remove_log", 
+				    type: "POST",
+				    statusCode : {
+				    	500 : function(err){
+				    		console.log(err);
+				    	},
+				    	400 : function(err){
+				    		console.log(err);
+				    	}
+				    },
+				    data: formData,
+				    success: function (data, textStatus, jqXHR) { 
+				        parentDom.remove();
+				        $('#logCount').html(data.logCount);
+				    }
+				});
+			})
+		</script>
+		<%- include('../../layout/footer.html') -%>
+	</body>
+	
+</html>

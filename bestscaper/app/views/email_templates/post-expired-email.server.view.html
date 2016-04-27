@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+	<div style="width:600px; margin:0 auto;">
+		<%- include('./email-header.html')-%>
+
+			<p>Dear <%=name%>,</p>
+			<br>
+			<p>
+				<b>Your post has expired and will no longer be shown on the list.</b>
+			</p>
+			<p>Please click <a href="/h/<%=post.house%>/p/<%=post._id%>">here</a> to check your post</p>
+			<br>
+			<br>
+			<p>The <%=appName%> Support Team</p>
+		<%- include('./email-footer.html')-%>
+	</div>
+</body>
+</html>

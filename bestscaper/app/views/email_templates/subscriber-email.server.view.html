@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+	<div style="width:600px; margin:0 auto;">
+		<%- include('./email-header.html')-%>
+		<div style="padding:20px;">
+			<br/>
+			<div>
+				<img src="<%-company.companyLogo.url%>" width="200">
+				<p>From <a href="http://bestscaper.com/c/<%-company.id%>"><%-company.companyName%></a></p>
+				<p><b>Tel</b> : <%-company.companyContactNumber%> </p>
+				<p><b>Email</b> : <%-company.companyEmail%></p>
+			</div>
+			<br />
+			<pre><%-content%></pre>
+			<br>
+			<br>
+			<p><a href="http://bestscaper.com/users/me/account/email">Unsubscribe</a> from these emails.</p>
+			<p>Thank you for using Bestscaper.com</p>
+		</div>
+		<%- include('./email-footer.html')-%>
+	</div>
+</body>
+</html>

@@ -1,0 +1,478 @@
+<html>
+	<head>
+		<%- include('../../../layout/head.html') -%>
+		<link rel="stylesheet" href="/libs/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+		<script src ="/libs/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+		<script src ="/libs/geocomplete/jquery.geocomplete.js"></script>
+		<script src="/libs/moment.min.js"></script>
+		<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+		<script type="text/javascript">
+		  // This identifies your website in the createToken call below
+		  Stripe.setPublishableKey(PUBLISHABLE_KEY);
+		  // ...
+		</script>
+		<style>
+			.log{
+				padding:1.2em;
+				border-radius: 10px;
+				margin-bottom:10px;
+
+			}
+			.log-date{
+				font-size:.8em; 
+				position:absolute; 
+				bottom:5px; 
+				right:5px; 
+				color:#7D7D7D;
+			}
+			.log-remove{
+				position:absolute; 
+				top:3px; 
+				right:3px; 
+				color:red;
+				cursor:pointer;
+				display:none;
+			}
+			.log-wrapper{
+				position: relative;
+				line-height: 1.3;
+			}
+			.log-wrapper:hover>.log-remove{
+				display:block;
+			}
+			.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+			     padding: 0; 
+			    line-height: 1.42857143;
+			    vertical-align: top;
+			     border-top: none;
+			}
+		</style>
+	</head>
+	<body>
+		<%- include('../../../layout/header.html') -%>
+		<%
+			var albumCount = company.albums.length;
+			var nowSize = 0;
+
+			company.albums.forEach(function(album){
+				album.photos.forEach(function(photo){
+					nowSize = nowSize + photo.size;
+				})
+			})
+			nowSize = (Math.ceil(nowSize / 1024) / 1024).toFixed(2);
+			maxSzie = 100;
+			percent = Math.ceil(nowSize);
+		%>
+		<div class="container" style="margin-top:30px">
+			<div class="row">
+				<div class="col-xs-2">
+					<%- include('../sidebar.html') -%>
+				</div>
+				<div class="col-xs-offset-1 col-xs-9">
+					<h4 style="font-size:1.4em"> Current Plan : <span style="color:#90979E; font-size:1.2em">Platinum</span> 
+						<span>Exp Date <%=moment(company.payment.to).format('YYYY-MM-DD')%>
+
+						<button class="btn btn-success" style="margin-left:40px;"
+						data-toggle="modal" data-target="#paymentModal">Change Plan</button>
+					</h4>
+					<div>
+						<h4 style="margin-bottom:20px;margin-top:20px;font-size:1.4em">Usage</h4>
+						<p style="margin-bottom:10px;"><b>Images</b> : <%=nowSize%>MB / Infinite</p>
+						<div class="progress">
+							<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="<%=nowSize%>" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+							    <span class="sr-only">100% Complete</span>
+							</div>
+						</div>
+						<b>Album counts</b> : <%=albumCount%><br/>
+						<b>Business area</b> : <%=company.coveredAreas.length%> / 6 <br/>
+						
+					</div>
+					<div>
+						<h4 style="margin-bottom:20px;margin-top:20px;font-size:1.4em">Logs (<span id="logCount"><%=company.logs.length%></span>)</h4>
+						<% if(company.logs.length > 0) { %>
+							<% company.logs.forEach(function(log){%>
+								<div class="log-wrapper">
+									<i class="fa fa-times log-remove" data-logid = "<%-log._id%>"></i>
+									<%-log.message%>
+									<div class="log-date">
+										<%=moment(log.created).format('YYYY-MM-DD HH:mma')%>
+									</div>
+								</div>
+							<%})%>
+						<%}else{%>
+							<p style="font-size:1.2em">There is no logs</p>
+						<%}%>
+					</div>
+				</div>
+						
+					
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal for payment-->
+		<div class="modal" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="myModalLabel">Make Payment</h4>
+
+		      </div>
+		      
+		      <div class="modal-body">
+		      	
+		    	<form class="form-inline" id="paymentForm">
+		    		<div class="panel panel-default">
+					    <div class="panel-heading">
+					    	Plan & Total amount
+					    </div>
+					    <div class="panel-body">
+				   	    	<div style="line-height:1.4">
+				    			<div>
+					    			Plan : 
+					    			<select name="plan" id="plan">
+						    			<option value="Basic">Basic</option>
+						    			<option value="Gold">Gold</option>
+						    			<option value="Platinum">Platinum</option>
+						    		</select>
+				    			</div>
+					    		<div>
+					    			Period :
+					    			<select name = "month" id="month">
+						    			<option value="1">1 month</option>
+						    			<option value="3">3 months</option>
+						    			<option value="6">6 months</option>
+						    			<option value="12">12 months</option>
+						    		</select>
+								</div>
+								<div>
+					    			Total : <span id="totalAmount"></span>
+								</div>
+							</div>
+							<input type="hidden" name="total" id="total">
+						</div>
+					</div>
+					<div class="alert" role="alert" id="alertBox"></div>
+		    		<div class="panel panel-default">
+					    <div class="panel-heading">
+					    	Card Information
+					    </div>
+					    <div class="panel-body">
+				    		<table class="table" style="margin-top:15px;">
+					    		<tr>
+					    			<td>Card Number</td>
+					    			<td>Expiration Date</td>
+					    			<td>Security Code</td>
+					    		</tr>
+					    		<tr>
+					    			<td>
+					    				<input type="text" class="form-control" placeholder="Credit Card Number" data-stripe = "number" >
+					    			</td>
+					    			<td>
+					    				<input type="text" size="3" placeholder="MM" class="form-control" data-stripe = "exp-month" >
+					    				<input type="text" size="3" placeholder="YY" class="form-control" data-stripe="exp-year">
+					    			</td>
+					    			<td>
+					    				<input type="text" size="4" name="ccv2" class="form-control"placeholder="CCV" data-stripe="cvc">
+					    			</td>
+					    			
+					    		</tr>
+
+				    		</table>
+					    	<img src="/images/visa_mastercard_american.png" width="200">
+							
+						</div>
+
+					</div>
+					<p id="invalidCard"></p>
+		    		<div style="text-align:right;">
+		    			<input type="submit" class="btn btn-success" value="Change the plan" id="submitBtn">
+		    		</div>
+		    	</form>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+		
+		<script>
+			var currentPlan = '<%=company.payment.plan%>';
+			var expDate = '<%=moment(company.payment.to) %>';
+			$('#plan').val(currentPlan);
+			var plan = $('#plan').val();
+			var month = $('#month').val();
+			disabledByPlan(plan);
+			calculateTotal(plan,month);
+			messageByPlan(plan,month);
+
+			$('#plan').on("change",function(e){
+				plan = $(this).val();
+				month = $('#month').val();
+				calculateTotal(plan,month);
+				disabledByPlan(plan);
+				messageByPlan(plan,month)
+			})
+
+			$('#month').on("change",function(e){
+				plan = $('#plan').val();
+				month = $(this).val();
+				calculateTotal(plan,month);
+				messageByPlan(plan,month);
+			});
+
+			function messageByPlan(plan,month){
+				
+				if(plan == 'Basic'){
+					$('#alertBox').attr('class','alert alert-danger');
+					var message = 'We are going to refund your money depending on used date with 10% terminal fee. <br/>';
+					message += 'Your plan will be reverted back to basic<br/>';
+					$('#alertBox').html(message);
+					
+				}else if(plan == 'Gold'){
+					$('#alertBox').attr('class','alert alert-info');
+					var message = 'We are going to refund your current plan and change your plan into the new plan.<br/>';
+					$('#alertBox').html(message);
+
+				}else if(plan == 'Platinum'){
+					$('#alertBox').attr('class','alert alert-warning');
+					var message = 'We are going to extend your plan depending on the period.<br/>';
+					message += '+'+month+' Month(s) from your Exp Date';
+					$('#alertBox').html(message);
+
+				}
+			}
+
+			function disabledByPlan(plan){
+				if(plan == 'Basic'){
+					$('#paymentForm :input').prop("disabled", true);
+					$('#paymentForm #plan').prop('disabled',false);
+					$('#submitBtn').prop('disabled',false);
+					$('#submitBtn').val('Refund plan');
+					$('#submitBtn').attr('class', 'btn btn-danger');
+				}else if(plan == 'Gold'){
+					$('#paymentForm :input').prop("disabled", false);
+					$('#submitBtn').attr('class', 'btn btn-success');
+					$('#submitBtn').val('Downgrade plan');
+				}else if(plan == 'Platinum'){
+					$('#paymentForm :input').prop("disabled", false);
+					$('#submitBtn').val('Renew plan');
+					$('#submitBtn').attr('class', 'btn btn-primary');
+				}
+			}
+
+
+			function calculateTotal(plan,month){
+
+				var total;
+				var fee;
+				var discount ='';
+				month = parseInt(month) ; 
+				if(plan == 'Basic'){
+					fee = 0;
+				}else if(plan == 'Gold'){
+					fee = 9.00;
+				}else if(plan == 'Platinum'){
+					fee = 19.00;
+				}
+				if(month > 1){
+					total = (fee * month) - ((fee * month) * (month / 100) );
+					discount = ' <span style="font-size:0.8em">('+month+'% discount)</span>'
+				}else{
+					total = (fee * month);
+				}
+
+				$('#total').val(total);
+				if(plan == 'Basic'){
+					$('#totalAmount').html('CAD ' + total);
+				}else{
+					$('#totalAmount').html('CAD ' + total + discount);
+				}
+
+			}
+
+
+			function stripeResponseHandler(status, response) {
+			  	var $form = $('#paymentForm');
+
+			  	if (response.error) {
+				    // Show the errors on the form
+				    $form.find('#invalidCard').text(response.error.message);
+				    $form.find('input[type="submit"]').prop('disabled', false);
+					loadingScreen(false);
+			  	} else {
+				    // response contains id and card, which contains additional card details
+				    var token = response.id;
+				    // Insert the token into the form so it gets submitted to the server
+				    $form.append($('<input type="hidden" name="stripeToken" />').val(token));
+					//renew
+					if(currentPlan == plan){
+						renewPlan();
+					}else if(plan == 'Gold'){
+						upgradePlan();
+					}
+			  	}
+			};
+
+
+			$('#paymentForm').on('submit',function(e){
+				// console.log($(this));
+				// console.log( $(this).data('logid') );
+				e.preventDefault();
+				loadingScreen(true);
+				var $form = $(this);
+
+				$form.find('input[type="submit"]').prop('disabled', true);
+				
+					//renew
+				if(plan == 'Basic'){
+					refundPlan();
+				}else{
+					Stripe.card.createToken($form, stripeResponseHandler);
+				}
+				return false;
+			})
+
+			function refundPlan(){
+
+				jQuery.ajax({
+				    url: "/companies/my_company/payments/refund", 
+				    type: "POST",
+				    statusCode : {
+				    	500 : function(err){
+				    		console.log(err);
+				    	},
+				    	400 : function(err){
+				    		console.log(err);
+				    	}
+				    },
+				    data: {},
+				    success: function (data, textStatus, jqXHR) { 
+						loadingScreen(false);
+				        if(data.status == 'success'){
+				        	location.reload();
+				        }
+				    }
+				});
+
+			}
+
+			function upgradePlan(){
+
+				jQuery.ajax({
+				    url: "/companies/my_company/payments/upgrade", 
+				    type: "POST",
+				    statusCode : {
+				    	500 : function(err){
+				    		console.log(err);
+				    	},
+				    	400 : function(err){
+				    		console.log(err);
+				    	}
+				    },
+				    data: $("#paymentForm").serialize(),
+				    success: function (data, textStatus, jqXHR) { 
+						loadingScreen(false);
+				        if(data.status == 'success'){
+				        	location.reload();
+				        }else{
+			        		$('#invalidCard').css('display','block');
+			        	}
+				    }
+				});
+
+			}
+
+			function renewPlan(){
+				jQuery.ajax({
+				    url: "/companies/my_company/payments/renew", 
+				    type: "POST",
+				    statusCode : {
+				    	500 : function(err){
+				    		console.log(err);
+				    	},
+				    	400 : function(err){
+				    		console.log(err);
+				    	}
+				    },
+				    data: $("#paymentForm").serialize(),
+				    success: function (data, textStatus, jqXHR) { 
+						loadingScreen(false);
+				        if(data.status == 'success'){
+				        	location.reload();
+				        }else{
+			        		$('#invalidCard').css('display','block');
+			        	}
+				    }
+				});
+
+			}
+
+			$('.log-remove').on('click',function(){
+				// console.log($(this));
+				// console.log( $(this).data('logid') );
+				var parentDom = $(this).parent();
+				var formData = {
+					'logId' : $(this).data('logid')	
+				}
+				jQuery.ajax({
+				    url: "/companies/my_company/log/remove_log", 
+				    type: "POST",
+				    statusCode : {
+				    	500 : function(err){
+				    		console.log(err);
+				    	},
+				    	400 : function(err){
+				    		console.log(err);
+				    	}
+				    },
+				    data: formData,
+				    success: function (data, textStatus, jqXHR) { 
+				        parentDom.remove();
+				        $('#logCount').html(data.logCount);
+				    }
+				});
+			})
+			
+			function loadingScreen(show){
+				if(show){
+					$('#loadingText').css('display','block')
+				}else{
+					$('#loadingText').css('display','none')
+				}	
+			}
+		</script>
+		<div id="loadingText">
+			<div id="loadingBox">
+				<i class="fa fa-spinner fa-spin" style="font-size:1.2em"></i> Please wait. Your payment is being processed...
+			</div>
+		</div>
+		<style>
+		#loadingText {
+			font-size:1.2em;
+		    position: absolute;
+		    top: 50%;
+		    left: 0;
+		    width: 100%;
+		    margin-top: -10px;
+		    line-height: 20px;
+		    text-align: center;
+		    z-index:2000;
+		    display:none;
+		}
+		#loadingBox{
+			border:2px solid #ccc;
+			padding:20px;
+			width:550px;
+			margin:0 auto;
+			background: RGBA(252, 255, 172, 0.7);
+			border-radius: 10px;
+			
+		}
+		#invalidCard{
+			color:red;
+			display:none;
+		}
+		<%- include('../../../layout/footer.html') -%>
+	</body>	
+</html>

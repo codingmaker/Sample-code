@@ -1,0 +1,80 @@
+<html>
+	<head>
+		<%- include('../../../layout/head.html') -%>
+		<script src ="/libs/moment.min.js"></script>
+		<link rel="stylesheet" href="/libs/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+		<script src ="/libs/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+		<style>
+		.check-company{
+			margin-left:.2em;
+			margin-right:.2em;
+		}
+		.check-post{
+			margin-left:.2em;
+			margin-right:.2em;
+		}
+		.log{
+			padding:1.2em;
+			border-radius: 10px;
+			margin-bottom:10px;
+		}
+		.danger{
+			color:#D70000;
+		}
+		.success{
+			color:#419A1A;
+		}
+
+		</style>
+	</head>
+	<body>
+		<%- include('../../../layout/header.html') -%>
+		<div class="container space-top-20">
+
+			<div class="row">
+				<%- include('../sidebar.html')%>
+				<div class="col-xs-10" style="padding-left:40px;">
+
+					<h2 style="font-size:1.6em; margin-bottom:20px;">Billing information</h2>
+
+					<table class="table table-bordered table-hover">
+						<tr class="active">
+							<td>
+								Description
+							</td>
+							<td>
+								Type
+							</td>
+							<td>
+								Amount
+							</td>
+							<td>
+								Date
+							</td>
+						</tr>
+
+						<% payments.forEach(function(payment){ %>
+							<% if(payment.object =='charge') { %>
+								<tr class="info">	
+									<td><%=payment.description%></td>
+									<td><%=payment.object%></td>
+									<td><%=payment.amount / 100 %></td>
+									<td><%=moment(payment.created).format('YYYY-MM-DD HH:mma')%></td>
+								</tr>
+								<%}else if(payment.object =='refund'){ %>
+								<tr class="danger">	
+									<td><%=payment.description%></td>
+									<td><%=payment.object%></td>
+									<td><%=payment.amount / 100 %></td>
+									<td><%=moment(payment.created).format('YYYY-MM-DD HH:mma')%></td>
+								</tr>
+								<% } %>
+						<% }) %>
+					</table>
+				</div>
+			</div>
+		</div>	
+		<%- include('../../../layout/footer.html') -%>
+		
+	</body>
+</html>

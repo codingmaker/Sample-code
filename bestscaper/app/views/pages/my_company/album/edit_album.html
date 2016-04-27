@@ -1,0 +1,423 @@
+<html>
+	<head>
+		<%- include('../../../layout/head.html') -%>
+		<script src="/libs/ejs_production.js"></script>
+		<script src="/libs/moment.min.js"></script>
+		<link rel="stylesheet" href="/libs/jQuery-File-Upload-9.11.0/css/jquery.fileupload.css">
+		<script src="/libs/jQuery-File-Upload-9.11.0/js/vendor/jquery.ui.widget.js"></script>
+		<script src="/libs/jQuery-File-Upload-9.11.0/js/jquery.iframe-transport.js"></script>
+		<script src="/libs/jQuery-File-Upload-9.11.0/js/jquery.fileupload.js"></script>
+		<!--[if gte IE 8]><script src="/libs/jQuery-File-Upload-9.11.0/js/cors/jquery.xdr-transport.js"></script><![endif]-->
+	</head>
+	<body>
+		<%- include('../../../layout/header.html') -%>
+		<%
+			var albumCount = company.albums.length;
+			var nowSize = 0;
+			var maxSize = 0;
+			var nowByte = 0;
+			company.albums.forEach(function(album){
+				album.photos.forEach(function(photo){
+					nowByte = nowByte + photo.size;
+				})
+			})
+			nowSize = (nowByte / 1024 / 1024).toFixed(2);
+
+			if(company.payment.plan == "Basic"){
+				maxSize = 80;
+			}else if(company.payment.plan == "Gold"){
+				maxSize = 250;
+			}else if(company.payment.plan == "Platinum"){
+				maxSize = 9999;
+			}
+			
+			percent = Math.ceil(nowSize / maxSize * 100 );
+		%>
+		<div class="container" style="margin-top:30px">
+			<div class="row">
+				<div class="col-xs-2">
+					<%- include('../sidebar.html') -%>
+				</div>
+
+				<div class="col-xs-9 col-xs-offset-1">
+					<div class="clearfix" id="navigation">
+						<div class="pull-left">
+							<a href="/companies/my_company/album/select_album">Select an album</a>
+							 > 
+							<a href="/companies/my_company/album/select_album">Edit an album (<b><%- album.title %> </b>)</a>
+							
+						</div>
+						<div class="pull-right">
+							<button class="btn btn-danger" data-toggle="modal" data-target="#removeAlbum">
+								Remove Album
+							</button>
+							<button class="btn btn-default" data-toggle="modal" data-target="#editAlbum">
+								Edit Album
+							</button>
+							<button class="btn btn-success" data-toggle="modal" data-target="#uploadPhoto" id="uploadBtn">
+								Upload Photo
+							</button>
+							
+							
+						</div>
+					</div>
+					<%if(company.payment.plan == "Platinum"){ %>
+						<p style="margin-bottom:10px;"><b>Images</b> : <span id="nowSize"><%=nowSize%></span>MB / Infinite</p>
+						<div class="progress">
+						<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="<%=nowSize%>" aria-valuemin="0" aria-valuemax="100" style="width:100%" id="processBar">
+						</div>
+					</div>
+					<%}else{%>
+						<p style="margin-bottom:10px;"><b>Images</b> : <span id="nowSize"><%=nowSize%></span>MB / <%=maxSize%>MB</p>
+						<div class="progress">
+						<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="<%=nowSize%>" aria-valuemin="0" aria-valuemax="100" style="width: <%=percent%>%" id="processBar">
+						</div>
+					</div>
+					<%}%>
+					
+
+					
+					<div id="photoArea">
+						<% album.photos.forEach(function(photo){%>
+							<div class="photo-wrapper" style="padding:5px; position:relative" >
+								<i class="fa fa-times remove-photo" onclick="removePhoto('<%-photo._id%>',<%=photo.size%>)"></i>
+								<img src="<%-photo.url%>" class="photo-size">
+							</div>
+						<%}) %>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+
+		<div class="modal" id="editAlbum" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"data-backdrop="">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		    	<div class="modal-header">
+		    		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        			<h4 class="modal-title" id="exampleModalLabel">Make new album</h4>			
+				</div>
+		    	<div class="modal-body">
+		    		<div class="form-group">
+					    <label for="title">Album Title</label>
+					    <input type="text" class="form-control" id="title" placeholder="My Album" value="<%-album.title%>">
+					</div>
+					<div class="form-group">
+					    <label for="title">Album Description</label>
+					    <textarea class="form-control" id="description"><%-album.description%></textarea>
+					</div>
+				</div>
+		    	<div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        <button type="button" class="btn btn-primary" onClick="editAlbum()">Save</button>
+			    </div>
+		    </div>
+		  </div>
+		</div>
+		
+		<div class="modal" id="uploadPhoto" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"data-backdrop="">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		    	<div class="modal-header">
+		    		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+        			<h4 class="modal-title" id="exampleModalLabel">Upload Photo</h4>			
+				</div>
+		    	<div class="modal-body">
+		    		<span class="btn btn-success fileinput-button">
+				        <i class="glyphicon glyphicon-plus"></i>
+				        <span>Select image</span>
+				        <!-- The file input field used as target for the file upload widget -->
+				        <input id="fileupload" type="file" name="files" multiple>
+				    </span>
+				    <span style="margin-left:2em; color:red;" id="fileUploadMessage"></span>
+				    <br>
+				    <br>
+				    <!-- The global progress bar -->
+				    <div id="progress" class="progress">
+				        <div class="progress-bar progress-bar-success"></div>
+				    </div>
+				    <!-- The container for the uploaded files -->
+				    <div id="files" class="files"></div>
+				</div>
+		    	
+		    </div>
+		  </div>
+		</div>
+		
+		<!-- remove confirm -->
+		<div class="modal" id="removeAlbum" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"data-backdrop="">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		    	<div class="modal-header">
+		    		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+        			<h4 class="modal-title" id="exampleModalLabel">Remove Album</h4>			
+				</div>
+		    	<div class="modal-body">
+		    		Are you sure to remove <b><%-album.title%></b> from your albums? 
+				</div>
+		    	<div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        <button type="button" class="btn btn-danger" onClick="removeAlbum()">remove</button>
+			    </div>
+		    </div>
+		  </div>
+		</div>
+		
+
+		<%- include('../../../layout/footer.html') -%>
+	
+	</body>
+	<style>
+		.photo-wrapper{
+			display:inline-block;
+		}
+
+		.photo-wrapper:hover>.remove-photo{
+			display:block;
+		}
+		.remove-photo{
+			position:absolute;
+			cursor:pointer;
+			font-size:1.2em; 
+			top:5px; 
+			right:5px; 
+			color:red;
+			display:none;
+		}
+		#photoArea{
+			background:#D1D1D1;
+			min-height:600px;
+			padding:15px;
+		}
+		.photo-size{
+			width:190px;
+			height:140px;
+		}
+	</style>	
+	<script>
+		var uploadedFiles = []; 
+		var nowSize = <%=nowSize%>;
+		var nowByte = <%=nowByte%>;
+		var maxSize = <%=maxSize%>;
+		var maxByte = <%=maxSize * 1024 * 1024%>;
+		var percent = <%=percent%>;
+
+		setDisabled();
+
+		function setDisabled(){
+			if(nowByte > maxByte){
+				$('#uploadBtn').addClass('disabled');
+				$('#uploadBtn').attr('data-target','null');
+
+			}else{
+				$('#uploadBtn').removeClass('disabled');
+				$('#uploadBtn').attr('data-target','#uploadPhoto');
+				$('#uploadBtn').data('target','#uploadPhoto');
+
+			}
+		}
+		
+		// $('#uploadBtn').addClass('disabled');
+
+		function removePhoto(photoId,size){
+			var formData = {
+				photoId : photoId,
+				albumId : "<%-album._id%>"
+			}
+			jQuery.ajax({
+			    url: "/companies/my_company/photo/remove_photo", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: formData, 
+			    success: function (data, textStatus, jqXHR) { 
+		    		if(data.status == 'success'){
+		    			// saveComplete();
+		    			console.log(size);
+		    			nowByte -= size;
+		    			calculateUsage();
+		    			setDisabled();
+		    			renderPhoto(data.album);
+		    		}
+			        
+			    }
+			});
+		}
+
+		// remove the album with whole images in this album
+		function removeAlbum(){
+			var formData = {
+				albumId : "<%-album._id%>"
+			}
+			jQuery.ajax({
+			    url: "/companies/my_company/photo/remove_album", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: formData, 
+			    success: function (data, textStatus, jqXHR) { 
+		    		if(data.status == 'success'){
+		    			location.href = "/companies/my_company/album/select_album";
+		    		}
+			        
+			    }
+			});
+		}
+
+		function addNewPhoto(data){
+			var formData = {
+				photos :data,
+				albumId : "<%-album._id%>"
+			}
+			jQuery.ajax({
+			    url: "/companies/my_company/photo/add_new_photo", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: formData, 
+			    success: function (data, textStatus, jqXHR) { 
+		    		if(data.status == 'success'){
+
+		    			uploadedFiles = [];
+		    			// saveComplete();
+		    			// console.log(data);
+		    			renderPhoto(data.album);
+		    		}
+			        
+			    }
+			});
+		}
+		
+		function editAlbum(){
+			var formData = {
+				title : $('#title').val(),
+				description : $('#description').val(),
+				albumId : "<%-album._id%>"
+			}
+			jQuery.ajax({
+			    url: "/companies/my_company/photo/edit_album", 
+			    type: "POST",
+			    statusCode : {
+			    	500 : function(err){
+			    		console.log(err);
+			    	},
+			    	400 : function(err){
+			    		console.log(err);
+			    	}
+			    },
+			    data: formData, 
+			    success: function (data, textStatus, jqXHR) { 
+		    		if(data.status == 'success'){
+		    			location.reload();
+		    			
+		    		}
+			        
+			    }
+			});
+		}
+		function renderPhoto(album){
+			var target = $('#photoArea');
+			var html = new EJS({url: '/templete/company/photo'}).render({album : album})
+			target.html(html);
+		}
+
+		$(function () {
+		    'use strict';
+		    // Change this to the location of your server-side upload handler:
+			var url = '/uploadImage/company/<%-company._id%>';
+		    
+		    $('#fileupload').fileupload({
+		        url: url,
+		        dataType: 'json',
+		        add: function(e, data) {
+		        	nowByte += data.files[0].size;
+		        	var passOk = false;
+	                var uploadErrors = [];
+	                var acceptFileTypes = /^image\/(gif|jpe?g|png)$/i;
+	                console.log(data);
+	                if(data.files[0].type.length && !acceptFileTypes.test(data.files[0].type)) {
+	                    uploadErrors.push('Not an accepted file type');
+	                }
+	                console.log(data.files[0].size);
+	                if(data.files[0].size > 4000000) {
+	                    uploadErrors.push('Filesize is too big');
+	                };
+
+	                if(nowByte > maxByte){
+		        		nowByte -= data.files[0].size;
+	                }else{
+	                	passOk = true;
+	                };
+
+	                if(uploadErrors.length > 0) {
+	                    alert(uploadErrors.join("\n"));
+
+	                }else if(!passOk){
+		        		$('#fileUploadMessage').html('You cannot upload over' + maxSize + 'MB');
+	                } else {
+	                    data.submit();
+	                }
+
+		        },
+		        done: function (e, data) {
+		            $.each(data.result.files, function (index, file) {
+		            	
+		            	uploadedFiles.unshift(file);
+		            	calculateUsage();
+		                $('<p/>').text(file.name).appendTo('#files');
+		            });
+
+		        },
+		        fail: function (e, data) {
+		            $.each(data.messages, function (index, error) {
+		                $('<p style="color: red;">Upload file error: ' + error + '<i class="elusive-remove" style="padding-left:10px;"/></p>')
+		                .appendTo('#files');
+		            });
+		        },
+		        progressall: function (e, data) {
+		            var progress = parseInt(data.loaded / data.total * 100, 10);
+		            $('#progress .progress-bar').css(
+		                'width',
+		                progress + '%'
+		            );
+		        },
+		        stop: function (e) {
+	            	addNewPhoto(uploadedFiles);
+		        }
+		    }).prop('disabled', !$.support.fileInput)
+		        .parent().addClass($.support.fileInput ? undefined : 'disabled');
+		});
+		
+		function calculateUsage(){
+			var nowMb = (nowByte / 1024 / 1024 ).toFixed(2);
+			console.log(nowMb);
+			var nowPercent = Math.ceil(nowByte / maxByte * 100 );
+			console.log(nowPercent);
+			if(maxSize != 9999){
+				$('#processBar').css('width',nowPercent+'%');
+			}
+			$('#nowSize').html(nowMb);
+		}
+	</script>
+
+</html>

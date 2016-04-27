@@ -1,0 +1,68 @@
+
+<div style="position:relative;">
+	<div id="map-canvas">
+		
+	</div>
+	<div style="position:absolute; bottom:-25px; left:40px; padding:5px; background:white; border:1px solid #ccc; border-radius:3px;">
+		<% if(company.companyLogo.url && company.valid) { %>
+			<img src="<%-company.companyLogo.url%>" style="width:300px; height:200px; border:1px solid #ccc;">
+		<% }else{ %>
+			<img src="/images/noimage.png" style="width:300px; height:200px; border:1px solid #ccc;">
+		<%}%>
+	</div>
+	<div style="position:absolute; bottom: 10px; left:340px;">
+		<h2 style="padding-left:20px; font-size:2.5em; display:inline-block;"><%- company.companyName %></h2>
+		<div style="line-height:1.5; display:inline-block;">
+			<span id="companyLating"></span>
+			<span>(<%=company.reviews.length%>)</span>
+		</div>
+	</div>
+</div>
+<% if(company.valid ){%>
+<div class="clearfix">
+	<div class="pull-right" style="text-align:right; line-height:0.7; padding:10px;">
+		<div class="fb-share-button" data-href="#" data-layout="button_count" style="display:inline-block"></div>
+		<div class="g-plus" data-action="share" data-annotation="bubble"></div>
+		<a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+	</div>
+</div>
+<script>
+	// twitter share 
+	!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+</script>
+<%}else{ %>
+	<div style="margin-top:40px;" class="clearfix">
+
+	</div>
+<% }%>
+
+<script>
+	
+
+	
+	// initialize for google maps
+	function initialize() {
+	  	var mapOptions = {
+	  		scrollwheel : false,
+	  		navigationControl: false,
+		    mapTypeControl: false,
+		    scaleControl: false,
+		    zoomControl : false,
+		    draggable: false,
+		    streetViewControl : false,
+	    	center: new google.maps.LatLng(<%=company.location.coordinates[1]%>, <%=company.location.coordinates[0]%>),
+	    	zoom: 15
+	  	};
+		var map = new google.maps.Map(document.getElementById('map-canvas'),
+	    mapOptions);
+
+	    var marker = new google.maps.Marker({
+		    map: map,
+		    anchorPoint: new google.maps.Point(0, -29)
+	  	});
+	  	
+	    marker.setPosition(new google.maps.LatLng(parseFloat(<%=company.location.coordinates[1]%>),parseFloat(<%=company.location.coordinates[0]%>)) );
+	    marker.setVisible(true);
+	}
+	google.maps.event.addDomListener(window, 'load', initialize);
+</script>

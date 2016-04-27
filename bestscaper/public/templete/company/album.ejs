@@ -1,0 +1,18 @@
+<% albums.forEach(function(album){%>
+	<a class="col-xs-3" style="padding:10px; text-decoration:none" href="/companies/my_company/album/edit_album/<%=album._id%>"">
+		<div class="album">
+			<% if (album.photos.length > 0){%>
+				<%= img_tag(album.photos[0].url,'img-responsive')%> 
+			<% }else{%>
+				<img src="/images/noimage.png" class="img-responsive img-thumbnail center-block"> 
+
+			<% }%>
+			<div class="" style="padding:10px; color:RGBA(64, 62, 65, .7)">
+				<!-- like counter, comment counter. -->
+				<p class="album-title"><%=album.title%></p>
+
+				<p><%= moment(album.createdAt).format('YYYY-MM-DD') %></p>
+			</div>
+		</div>
+	</a>
+<% }) %>
